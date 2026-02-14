@@ -187,13 +187,26 @@ const ManagerDashboard = () => {
 
     const downloadAdvancesPDF = () => {
         const doc = new jsPDF();
-        doc.text('Advance History Report', 14, 20);
+
+        // Header
+        doc.setFontSize(20);
+        doc.setTextColor(102, 126, 234);
+        doc.text('Radhe 4P Diamond Management System', 105, 15, { align: 'center' });
+
+        doc.setFontSize(14);
+        doc.setTextColor(51, 51, 51);
+        doc.text('Advance History Report', 105, 25, { align: 'center' });
+
+        doc.setFontSize(10);
+        doc.setTextColor(100);
+        const dateStr = new Date().toLocaleString();
+        doc.text(`Generated on: ${dateStr}`, 105, 32, { align: 'center' });
 
         const tableColumn = ["Worker Name", "Email", "Amount", "Date", "Notes"];
         const tableRows = advancesHistory.map(advance => [
             advance.worker?.name || 'N/A',
             advance.worker?.email || 'N/A',
-            `Rs. ${advance.amount}`,
+            `Rs. ${advance.amount.toLocaleString()}`,
             new Date(advance.date).toLocaleDateString(),
             advance.notes || '-'
         ]);
@@ -201,8 +214,21 @@ const ManagerDashboard = () => {
         doc.autoTable({
             head: [tableColumn],
             body: tableRows,
-            startY: 30,
+            startY: 40,
+            theme: 'striped',
+            headStyles: { fillColor: [102, 126, 234] },
+            alternateRowStyles: { fillColor: [245, 247, 255] }
         });
+
+        // Footer
+        const pageCount = doc.internal.getNumberOfPages();
+        for (let i = 1; i <= pageCount; i++) {
+            doc.setPage(i);
+            doc.setFontSize(8);
+            doc.setTextColor(150);
+            doc.text(`Page ${i} of ${pageCount}`, 105, 290, { align: 'center' });
+        }
+
         doc.save(`advances-report-${Date.now()}.pdf`);
     };
 
@@ -223,7 +249,20 @@ const ManagerDashboard = () => {
 
     const downloadTransactionsPDF = () => {
         const doc = new jsPDF();
-        doc.text('Dealer Transaction History', 14, 20);
+
+        // Header
+        doc.setFontSize(20);
+        doc.setTextColor(102, 126, 234);
+        doc.text('Radhe 4P Diamond Management System', 105, 15, { align: 'center' });
+
+        doc.setFontSize(14);
+        doc.setTextColor(51, 51, 51);
+        doc.text('Dealer Transaction History', 105, 25, { align: 'center' });
+
+        doc.setFontSize(10);
+        doc.setTextColor(100);
+        const dateStr = new Date().toLocaleString();
+        doc.text(`Generated on: ${dateStr}`, 105, 32, { align: 'center' });
 
         const tableColumn = ["Dealer", "Type", "Count", "Price", "Total", "Date"];
         const tableRows = dealerTransactions.map(t => [
@@ -238,8 +277,21 @@ const ManagerDashboard = () => {
         doc.autoTable({
             head: [tableColumn],
             body: tableRows,
-            startY: 30,
+            startY: 40,
+            theme: 'striped',
+            headStyles: { fillColor: [102, 126, 234] },
+            alternateRowStyles: { fillColor: [245, 247, 255] }
         });
+
+        // Footer
+        const pageCount = doc.internal.getNumberOfPages();
+        for (let i = 1; i <= pageCount; i++) {
+            doc.setPage(i);
+            doc.setFontSize(8);
+            doc.setTextColor(150);
+            doc.text(`Page ${i} of ${pageCount}`, 105, 290, { align: 'center' });
+        }
+
         doc.save(`transactions-report-${Date.now()}.pdf`);
     };
 
@@ -261,11 +313,51 @@ const ManagerDashboard = () => {
 
     const downloadProfitPDF = () => {
         const doc = new jsPDF();
-        doc.text('Profit Overview Report', 14, 20);
 
-        doc.text(`Total Revenue: Rs. ${(profitData?.totalRevenue || 0).toLocaleString()}`, 14, 40);
-        doc.text(`Total Labor Cost: Rs. ${(profitData?.totalLaborCost || 0).toLocaleString()}`, 14, 50);
-        doc.text(`Net Profit: Rs. ${(profitData?.netProfit || 0).toLocaleString()}`, 14, 60);
+        // Header
+        doc.setFontSize(20);
+        doc.setTextColor(102, 126, 234);
+        doc.text('Radhe 4P Diamond Management System', 105, 15, { align: 'center' });
+
+        doc.setFontSize(14);
+        doc.setTextColor(51, 51, 51);
+        doc.text('Profit Overview Report', 105, 25, { align: 'center' });
+
+        doc.setFontSize(10);
+        doc.setTextColor(100);
+        const dateStr = new Date().toLocaleString();
+        doc.text(`Generated on: ${dateStr}`, 105, 32, { align: 'center' });
+
+        // Financial Summary Table
+        const tableColumn = ["Metric", "Amount"];
+        const tableRows = [
+            ["Total Revenue (From Dealers)", `Rs. ${(profitData?.totalRevenue || 0).toLocaleString()}`],
+            ["Total Labor Cost (To Workers)", `Rs. ${(profitData?.totalLaborCost || 0).toLocaleString()}`],
+            ["Net Profit", `Rs. ${(profitData?.netProfit || 0).toLocaleString()}`]
+        ];
+
+        doc.autoTable({
+            head: [tableColumn],
+            body: tableRows,
+            startY: 40,
+            theme: 'grid',
+            headStyles: { fillColor: [40, 40, 40] },
+            columnStyles: {
+                0: { fontStyle: 'bold' },
+                1: { title: 'Amount', halign: 'right' }
+            },
+            didParseCell: function (data) {
+                if (data.row.index === 2 && data.section === 'body') {
+                    data.cell.styles.fontStyle = 'bold';
+                    data.cell.styles.textColor = (profitData?.netProfit || 0) >= 0 ? [0, 128, 0] : [255, 0, 0];
+                }
+            }
+        });
+
+        // Footer
+        doc.setFontSize(8);
+        doc.setTextColor(150);
+        doc.text('Confidential Financial Report', 105, 290, { align: 'center' });
 
         doc.save(`profit-report-${Date.now()}.pdf`);
     };
