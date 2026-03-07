@@ -49,6 +49,12 @@ app.use((req, res) => {
 });
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-});
+
+// Only start listening when running directly (local dev), not as a Vercel serverless function
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`🚀 Server running on port ${PORT}`);
+  });
+}
+
+module.exports = app;

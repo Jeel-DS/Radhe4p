@@ -5,14 +5,17 @@
       "src": "frontend/package.json",
       "use": "@vercel/static-build",
       "config": {
-        "distDir": "dist",
-        "installCommand": "npm --prefix frontend install",
-        "buildCommand": "npm --prefix frontend run build"
+        "distDir": "dist"
       }
+    },
+    {
+      "src": "api/index.js",
+      "use": "@vercel/node"
     }
   ],
   "routes": [
-    { "src": "/api/(.*)", "dest": "/api/$1" },
-    { "src": "/(.*)", "dest": "/index.html" }
+    { "src": "/api/(.*)", "dest": "/api/index.js" },
+    { "handle": "filesystem" },
+    { "src": "/(.*)", "dest": "/frontend/dist/index.html" }
   ]
 }
