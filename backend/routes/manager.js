@@ -542,4 +542,46 @@ router.get('/profit', async (req, res) => {
     }
 });
 
+// Get data for Worker PDF Report
+router.get('/worker-report/:id', async (req, res) => {
+    try {
+        const workerId = req.params.id;
+
+        // Verify worker exists
+        const worker = await User.findOne({ _id: workerId, role: 'worker' });
+        if (!worker) {
+            return res.status(404).json({ success: false, message: 'Worker not found' });
+        }
+
+        // Fetch completed (approved) work requests for the worker
+        const workRequests = await WorkRequest.find({
+            worker: workerId,
+            status: 'approved'
+        }).populate('dealer', 'name').sort({ approvalDate: -1 });
+
+        // Map them to the structured workLogs expected by the frontend
+        const workLogs = workRequests.map(req => ({
+            _id: req._id,
+            date: req.approvalDate || req.requestDate,
+            diamonds: req.diamondCount,
+            price: req.assignedPrice || 0,
+            dealerName: req.dealer ? req.dealer.name : 'Unknown Dealer'
+        }));
+
+        // Fetch advances
+        const advances = await Advance.find({ worker: workerId }).sort({ date: -1 });
+
+        res.json({
+            success: true,
+            worker: { name: worker.name, email: worker.email },
+            workLogs,
+            advances
+        });
+
+    } catch (error) {
+        console.error('Error fetching worker report:', error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
 module.exports = router;

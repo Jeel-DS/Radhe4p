@@ -1,9 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
+import html2canvas from 'html2canvas';
+import InvoiceTemplate from '../components/InvoiceTemplate';
+import WorkerReportTemplate from '../components/WorkerReportTemplate';
 
 const ManagerDashboard = () => {
     const { user, logout } = useAuth();
@@ -28,6 +31,18 @@ const ManagerDashboard = () => {
     const [workerForm, setWorkerForm] = useState({ name: '', email: '', password: '' });
     const [transactionForm, setTransactionForm] = useState({ dealer: '', diamondType: '', count: '', pricePerDiamond: '', date: '' });
     const [message, setMessage] = useState({ type: '', text: '' });
+
+    // PDF specific states
+    const [selectedDealerForInvoice, setSelectedDealerForInvoice] = useState('');
+    const [invoiceData, setInvoiceData] = useState(null);
+    const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
+    const invoiceRef = useRef(null);
+
+    // Worker Report PDF states
+    const [selectedWorkerForReport, setSelectedWorkerForReport] = useState('');
+    const [workerReportData, setWorkerReportData] = useState(null);
+    const [isGeneratingWorkerReport, setIsGeneratingWorkerReport] = useState(false);
+    const workerReportRef = useRef(null);
 
     useEffect(() => {
         fetchAllData();
@@ -181,6 +196,177 @@ const ManagerDashboard = () => {
         }
     };
 
+    const generateDealerInvoicePDF = async () => {
+        if (!selectedDealerForInvoice) {
+            showMessage('error', 'Please select a dealer to generate invoice');
+            return;
+        }
+
+        const dealer = dealers.find(d => d._id === selectedDealerForInvoice);
+        if (!dealer) return;
+
+        const dealerTxns = dealerTransactions.filter(t => t.dealer?._id === selectedDealerForInvoice);
+        if (dealerTxns.length === 0) {
+            showMessage('error', 'No transactions found for this dealer');
+            return;
+        }
+
+        let subtotal = 0;
+        const formattedTxns = dealerTxns.map(t => {
+            const amount = t.count * t.pricePerDiamond;
+            subtotal += amount;
+            return {
+                id: t._id,
+                type: t.diamondType?.name || 'N/A',
+                count: t.count,
+                price: t.pricePerDiamond,
+                amount: amount,
+                date: new Date(t.date).toLocaleDateString()
+            };
+        });
+
+        const netAmount = subtotal;
+
+        const data = {
+            dealerName: dealer.name,
+            transactions: formattedTxns,
+            subtotal,
+            netAmount
+        };
+
+        setInvoiceData(data);
+        setIsGeneratingPDF(true);
+
+        setTimeout(async () => {
+            if (invoiceRef.current) {
+                try {
+                    const canvas = await html2canvas(invoiceRef.current, {
+                        scale: 2,
+                        useCORS: true,
+                        logging: false
+                    });
+
+                    const imgData = canvas.toDataURL('image/png');
+                    const pdf = new jsPDF('p', 'mm', 'a4');
+                    const pdfWidth = 210;
+                    const pdfHeight = 297;
+                    const imgWidth = canvas.width;
+                    const imgHeight = canvas.height;
+                    const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
+                    const imgX = (pdfWidth - imgWidth * ratio) / 2;
+                    const imgY = 0;
+                    
+                    pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidth * ratio, imgHeight * ratio);
+                    
+                    const safeName = dealer.name.replace(/\s+/g, '_');
+                    pdf.save(`Invoice_${safeName}.pdf`);
+                    
+                    showMessage('success', 'Invoice PDF generated successfully!');
+                } catch (error) {
+                    console.error("Error generating PDF:", error);
+                    showMessage('error', 'Failed to generate PDF');
+                } finally {
+                    setIsGeneratingPDF(false);
+                }
+            }
+        }, 500); // Wait for React to render the template
+    };
+
+    const generateWorkerReportPDF = async () => {
+        if (!selectedWorkerForReport) {
+            showMessage('error', 'Please select a worker to generate report');
+            return;
+        }
+
+        const worker = workers.find(w => w._id === selectedWorkerForReport);
+        if (!worker) return;
+
+        try {
+            setIsGeneratingWorkerReport(true);
+            const response = await api.get(`/manager/worker-report/${worker._id}`);
+            const data = response.data;
+
+            let totalIncome = 0;
+            let totalDiamonds = 0;
+            const formattedWorkLogs = data.workLogs.map(log => {
+                const income = log.diamonds * log.price;
+                totalIncome += income;
+                totalDiamonds += log.diamonds;
+                return {
+                    id: log._id,
+                    date: new Date(log.date).toLocaleDateString(),
+                    diamonds: log.diamonds,
+                    price: log.price,
+                    dealer: log.dealerName,
+                    income: income
+                };
+            });
+
+            let totalAdvance = 0;
+            const formattedAdvances = data.advances.map(adv => {
+                totalAdvance += adv.amount;
+                return {
+                    id: adv._id,
+                    date: new Date(adv.date).toLocaleDateString(),
+                    remark: adv.notes,
+                    amount: adv.amount
+                };
+            });
+
+            const netPayable = totalIncome - totalAdvance;
+
+            setWorkerReportData({
+                workerName: worker.name,
+                reportNumber: `RPT-${Math.floor(Math.random() * 100000)}`,
+                date: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
+                workLogs: formattedWorkLogs,
+                advances: formattedAdvances,
+                totalDiamonds,
+                totalIncome,
+                totalAdvance,
+                netPayable
+            });
+
+            setTimeout(async () => {
+                if (workerReportRef.current) {
+                    try {
+                        const canvas = await html2canvas(workerReportRef.current, {
+                            scale: 2,
+                            useCORS: true,
+                            logging: false
+                        });
+
+                        const imgData = canvas.toDataURL('image/png');
+                        const pdf = new jsPDF('p', 'mm', 'a4');
+                        const pdfWidth = 210;
+                        const pdfHeight = 297;
+                        const imgWidth = canvas.width;
+                        const imgHeight = canvas.height;
+                        const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
+                        const imgX = (pdfWidth - imgWidth * ratio) / 2;
+                        const imgY = 0;
+                        
+                        pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidth * ratio, imgHeight * ratio);
+                        
+                        const safeName = worker.name.replace(/\s+/g, '_');
+                        pdf.save(`WorkerReport_${safeName}.pdf`);
+                        
+                        showMessage('success', 'Worker Report PDF generated successfully!');
+                    } catch (error) {
+                        console.error("Error generating PDF:", error);
+                        showMessage('error', 'Failed to generate worker report');
+                    } finally {
+                        setIsGeneratingWorkerReport(false);
+                    }
+                }
+            }, 500);
+
+        } catch (error) {
+            console.error('Error fetching worker report:', error);
+            showMessage('error', 'Failed to generate worker report. Ensure API endpoint exists.');
+            setIsGeneratingWorkerReport(false);
+        }
+    };
 
 
     // ... (existing code)
@@ -532,11 +718,26 @@ const ManagerDashboard = () => {
                             </form>
                         </div>
                         <div className="card">
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
                                 <h2>Transaction History</h2>
-                                <div>
-                                    <button onClick={downloadTransactionsPDF} className="btn btn-secondary" style={{ fontSize: '13px', marginRight: '5px' }}>📥 PDF</button>
-                                    <button onClick={downloadTransactionsExcel} className="btn btn-success" style={{ fontSize: '13px' }}>📊 Excel</button>
+                                <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                                    <select 
+                                        className="form-select" 
+                                        style={{ width: 'auto', padding: '6px 10px', fontSize: '13px', margin: 0 }}
+                                        value={selectedDealerForInvoice}
+                                        onChange={e => setSelectedDealerForInvoice(e.target.value)}
+                                    >
+                                        <option value="">Select Dealer for Invoice</option>
+                                        {dealers.map(d => <option key={d._id} value={d._id}>{d.name}</option>)}
+                                    </select>
+                                    <button 
+                                        onClick={generateDealerInvoicePDF} 
+                                        className="btn btn-primary" 
+                                        style={{ fontSize: '13px', whiteSpace: 'nowrap' }}
+                                        disabled={isGeneratingPDF}
+                                    >
+                                        {isGeneratingPDF ? 'Generating...' : '📄 Generate Invoice PDF'}
+                                    </button>
                                 </div>
                             </div>
                             <div style={{ overflowX: 'auto' }}>
@@ -619,14 +820,16 @@ const ManagerDashboard = () => {
                         </div>
                         <div className="card">
                             <h2>All Types</h2>
-                            <table className="table">
-                                <thead><tr><th>Name</th><th>Description</th><th>Status</th></tr></thead>
-                                <tbody>
-                                    {diamondTypes.map(t => (
-                                        <tr key={t._id}><td>{t.name}</td><td>{t.description || '-'}</td><td>{t.active ? 'Active' : 'Inactive'}</td></tr>
-                                    ))}
-                                </tbody>
-                            </table>
+                            <div style={{ overflowX: 'auto' }}>
+                                <table className="table">
+                                    <thead><tr><th>Name</th><th>Description</th><th>Status</th></tr></thead>
+                                    <tbody>
+                                        {diamondTypes.map(t => (
+                                            <tr key={t._id}><td>{t.name}</td><td>{t.description || '-'}</td><td>{t.active ? 'Active' : 'Inactive'}</td></tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 )}
@@ -683,7 +886,30 @@ const ManagerDashboard = () => {
 
                 {activeTab === 'employee' && (
                     <div className="card fade-in">
-                        <h2>🏆 Employee of the Week</h2>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
+                            <h2>🏆 Employee of the Week</h2>
+                            
+                            <div style={{ display: 'flex', gap: '10px', alignItems: 'center', background: '#f3f4f6', padding: '10px', borderRadius: '8px' }}>
+                                <select 
+                                    className="form-select" 
+                                    style={{ width: 'auto', padding: '6px 10px', fontSize: '13px', margin: 0 }}
+                                    value={selectedWorkerForReport}
+                                    onChange={e => setSelectedWorkerForReport(e.target.value)}
+                                >
+                                    <option value="">Select Worker for Report</option>
+                                    {workers.map(w => <option key={w._id} value={w._id}>{w.name}</option>)}
+                                </select>
+                                <button 
+                                    onClick={generateWorkerReportPDF} 
+                                    className="btn btn-primary" 
+                                    style={{ fontSize: '13px', whiteSpace: 'nowrap' }}
+                                    disabled={isGeneratingWorkerReport}
+                                >
+                                    {isGeneratingWorkerReport ? 'Generating...' : '📄 Download Worker Report'}
+                                </button>
+                            </div>
+                        </div>
+
                         {employeeOfWeek && (
                             <div style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', color: 'white', padding: '20px', borderRadius: '10px', textAlign: 'center', marginBottom: '20px' }}>
                                 <h3 style={{ margin: 0 }}>{employeeOfWeek.name}</h3>
@@ -691,20 +917,22 @@ const ManagerDashboard = () => {
                                 <button onClick={() => removeEmployeeOfWeek(employeeOfWeek._id)} className="btn" style={{ marginTop: '10px', background: 'rgba(255,255,255,0.2)', color: 'white' }}>Remove Badge</button>
                             </div>
                         )}
-                        <table className="table">
-                            <thead><tr><th>Name</th><th>Email</th><th>Action</th></tr></thead>
-                            <tbody>
-                                {workers.map(w => (
-                                    <tr key={w._id}>
-                                        <td>{w.name}</td>
-                                        <td>{w.email}</td>
-                                        <td>
-                                            {!w.isEmployeeOfWeek && <button onClick={() => setEmployeeOfTheWeek(w._id)} className="btn btn-primary" style={{ padding: '5px 10px' }}>Set as Winner</button>}
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                        <div style={{ overflowX: 'auto' }}>
+                            <table className="table">
+                                <thead><tr><th>Name</th><th>Email</th><th>Action</th></tr></thead>
+                                <tbody>
+                                    {workers.map(w => (
+                                        <tr key={w._id}>
+                                            <td>{w.name}</td>
+                                            <td>{w.email}</td>
+                                            <td>
+                                                {!w.isEmployeeOfWeek && <button onClick={() => setEmployeeOfTheWeek(w._id)} className="btn btn-primary" style={{ padding: '5px 10px' }}>Set as Winner</button>}
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 )}
 
@@ -720,6 +948,9 @@ const ManagerDashboard = () => {
                     </div>
                 )}
             </div>
+
+            <InvoiceTemplate ref={invoiceRef} invoiceData={invoiceData} />
+            <WorkerReportTemplate ref={workerReportRef} reportData={workerReportData} />
         </div>
     );
 };

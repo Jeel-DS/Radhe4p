@@ -330,26 +330,122 @@ body {
 
 /* Responsive */
 @media (max-width: 768px) {
+  .container {
+    padding: 10px;
+  }
+
   .header-content {
     flex-direction: column;
-    gap: 16px;
+    gap: 12px;
+    align-items: stretch;
+    text-align: center;
+  }
+
+  .header h1 {
+    font-size: 22px;
+  }
+
+  .user-info {
+    justify-content: center;
+    flex-wrap: wrap;
+    font-size: 14px;
   }
 
   .tabs {
+    flex-wrap: nowrap;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
+    padding-bottom: 5px;
+    margin-bottom: 16px;
+    scrollbar-width: thin;
+  }
+  
+  .tabs::-webkit-scrollbar {
+    height: 4px;
+  }
+  
+  .tabs::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
   }
 
   .tab {
     white-space: nowrap;
+    padding: 10px 16px;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+
+  .card {
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+
+  /* Target inline flex styles that force side-by-side on desktop */
+  .card [style*="justify-content: space-between"] {
+    flex-direction: column;
+    align-items: stretch !important;
+    gap: 12px;
+  }
+  
+  .card [style*="display: flex"][style*="gap"] {
+    flex-wrap: wrap;
+  }
+
+  .card h2 {
+    font-size: 20px;
+    margin-bottom: 12px !important;
   }
 
   .table {
-    font-size: 12px;
+    font-size: 13px;
   }
 
   .table th,
   .table td {
-    padding: 12px 8px;
+    padding: 12px 10px;
+    white-space: nowrap;
+  }
+
+  /* Improve button tap targets and wrap behavior */
+  .btn {
+    padding: 10px 16px;
+    font-size: 13px;
+    width: 100%;
+    margin-bottom: 8px;
+  }
+  
+  button + button {
+    margin-left: 0;
+  }
+
+  /* Handle grid layouts better on very small screens */
+  .grid-2, .grid-3 {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .stat-card {
+    padding: 16px;
+  }
+
+  .stat-value {
+    font-size: 28px;
+  }
+  
+  /* Form elements spacing and sizing for better touch */
+  .form-group {
+    margin-bottom: 16px;
+  }
+  
+  .form-input, .form-select {
+    padding: 12px 14px;
+    font-size: 16px; /* Prevents iOS auto-zoom */
+  }
+
+  /* Make sure any container with generic flex gaps wraps */
+  div[style*="display: flex"][style*="gap:"] {
+    flex-wrap: wrap;
   }
 }
+
