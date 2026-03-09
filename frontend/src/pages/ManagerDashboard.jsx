@@ -12,6 +12,7 @@ const ManagerDashboard = () => {
     const { user, logout } = useAuth();
     const [activeTab, setActiveTab] = useState('approvals');
     const [loading, setLoading] = useState(true);
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     // Data states
     const [pendingRequests, setPendingRequests] = useState([]);
@@ -575,18 +576,55 @@ const ManagerDashboard = () => {
     }
 
     return (
-        <div>
-            <div className="header">
-                <div className="header-content">
-                    <h1>Manager Dashboard</h1>
-                    <div className="user-info">
-                        <span className="user-name">👨‍💼 {user.name}</span>
-                        <button onClick={logout} className="btn btn-secondary">Logout</button>
+        <div className="dashboard-layout">
+            {/* Sidebar */}
+            <div className={`sidebar ${isSidebarOpen ? 'open' : ''}`}>
+                <div className="sidebar-header">
+                    <h1>Radhe 4P</h1>
+                </div>
+                <div className="sidebar-nav">
+                    <div className={`nav-item ${activeTab === 'approvals' ? 'active' : ''}`} onClick={() => { setActiveTab('approvals'); setIsSidebarOpen(false); }}>
+                        <span>📋 Approvals ({pendingRequests.length})</span>
                     </div>
+                    <div className={`nav-item ${activeTab === 'dealers' ? 'active' : ''}`} onClick={() => { setActiveTab('dealers'); setIsSidebarOpen(false); }}>
+                        <span>🤝 Dealers</span>
+                    </div>
+                    <div className={`nav-item ${activeTab === 'transactions' ? 'active' : ''}`} onClick={() => { setActiveTab('transactions'); setIsSidebarOpen(false); }}>
+                        <span>💸 Transactions</span>
+                    </div>
+                    <div className={`nav-item ${activeTab === 'profit' ? 'active' : ''}`} onClick={() => { setActiveTab('profit'); setIsSidebarOpen(false); }}>
+                        <span>📈 Profit</span>
+                    </div>
+                    <div className={`nav-item ${activeTab === 'types' ? 'active' : ''}`} onClick={() => { setActiveTab('types'); setIsSidebarOpen(false); }}>
+                        <span>💎 Types</span>
+                    </div>
+                    <div className={`nav-item ${activeTab === 'advances' ? 'active' : ''}`} onClick={() => { setActiveTab('advances'); setIsSidebarOpen(false); }}>
+                        <span>💰 Advances</span>
+                    </div>
+                    <div className={`nav-item ${activeTab === 'employee' ? 'active' : ''}`} onClick={() => { setActiveTab('employee'); setIsSidebarOpen(false); }}>
+                        <span>🏆 Employee of Week</span>
+                    </div>
+                    <div className={`nav-item ${activeTab === 'add-worker' ? 'active' : ''}`} onClick={() => { setActiveTab('add-worker'); setIsSidebarOpen(false); }}>
+                        <span>👤 Add Worker</span>
+                    </div>
+                </div>
+                <div className="sidebar-footer">
+                    <button onClick={logout} className="btn btn-secondary" style={{ width: '100%' }}>Logout</button>
                 </div>
             </div>
 
-            <div className="container">
+            {/* Mobile Overlay */}
+            <div className={`mobile-overlay ${isSidebarOpen ? 'open' : ''}`} onClick={() => setIsSidebarOpen(false)}></div>
+
+            <div className="main-content">
+                {/* Navbar */}
+                <div className="navbar">
+                    <button className="navbar-toggle" onClick={() => setIsSidebarOpen(true)}>☰</button>
+                    <div className="navbar-info">
+                        <span style={{ fontWeight: 600, color: 'var(--text-dark)' }}>👨‍💼 {user.name}</span>
+                    </div>
+                </div>
+
                 {message.text && (
                     <div style={{
                         padding: '12px 24px',
@@ -601,24 +639,12 @@ const ManagerDashboard = () => {
                     </div>
                 )}
 
-                {/* Tabs */}
-                <div className="tabs">
-                    <button className={`tab ${activeTab === 'approvals' ? 'active' : ''}`} onClick={() => setActiveTab('approvals')}>Approvals ({pendingRequests.length})</button>
-                    <button className={`tab ${activeTab === 'dealers' ? 'active' : ''}`} onClick={() => setActiveTab('dealers')}>Dealers</button>
-                    <button className={`tab ${activeTab === 'transactions' ? 'active' : ''}`} onClick={() => setActiveTab('transactions')}>Dealer Transactions</button>
-                    <button className={`tab ${activeTab === 'profit' ? 'active' : ''}`} onClick={() => setActiveTab('profit')}>Profit</button>
-                    <button className={`tab ${activeTab === 'types' ? 'active' : ''}`} onClick={() => setActiveTab('types')}>Types</button>
-                    <button className={`tab ${activeTab === 'advances' ? 'active' : ''}`} onClick={() => setActiveTab('advances')}>Advances</button>
-                    <button className={`tab ${activeTab === 'employee' ? 'active' : ''}`} onClick={() => setActiveTab('employee')}>Employee of Week</button>
-                    <button className={`tab ${activeTab === 'add-worker' ? 'active' : ''}`} onClick={() => setActiveTab('add-worker')}>Add Worker</button>
-                </div>
-
                 {/* Tab Content */}
                 {activeTab === 'approvals' && (
                     <div className="card fade-in">
-                        <h2 style={{ marginBottom: '20px' }}>Pending Work Requests</h2>
+                        <h2>Pending Work Requests</h2>
                         {pendingRequests.length === 0 ? <p>No pending requests</p> : (
-                            <div style={{ overflowX: 'auto' }}>
+                            <div className="table-responsive">
                                 <table className="table">
                                     <thead>
                                         <tr>
@@ -633,9 +659,9 @@ const ManagerDashboard = () => {
                                                 <td>{request.diamondType?.name}</td>
                                                 <td>{request.diamondCount}</td>
                                                 <td>{new Date(request.requestDate).toLocaleDateString()}</td>
-                                                <td>
-                                                    <button onClick={() => approveRequest(request._id)} className="btn btn-success" style={{ marginRight: '8px' }}>✓</button>
-                                                    <button onClick={() => rejectRequest(request._id)} className="btn btn-danger">✗</button>
+                                                <td style={{ whiteSpace: 'nowrap' }}>
+                                                    <button onClick={() => approveRequest(request._id)} className="btn btn-success" style={{ padding: '6px 12px' }}>✓</button>
+                                                    <button onClick={() => rejectRequest(request._id)} className="btn btn-danger" style={{ padding: '6px 12px' }}>✗</button>
                                                 </td>
                                             </tr>
                                         ))}
@@ -664,7 +690,7 @@ const ManagerDashboard = () => {
                         </div>
                         <div className="card">
                             <h2>All Dealers</h2>
-                            <div style={{ overflowX: 'auto' }}>
+                            <div className="table-responsive">
                                 <table className="table">
                                     <thead><tr><th>Name</th><th>Contact</th><th>Status</th><th>Action</th></tr></thead>
                                     <tbody>
@@ -673,7 +699,7 @@ const ManagerDashboard = () => {
                                                 <td>{dealer.name}</td>
                                                 <td>{dealer.contactInfo || '-'}</td>
                                                 <td><span className={`badge ${dealer.active ? 'badge-success' : 'badge-danger'}`}>{dealer.active ? 'Active' : 'Inactive'}</span></td>
-                                                <td><button onClick={() => toggleDealer(dealer._id, dealer.active)} className="btn btn-secondary">{dealer.active ? 'Deactivate' : 'Activate'}</button></td>
+                                                <td><button onClick={() => toggleDealer(dealer._id, dealer.active)} className="btn btn-secondary" style={{ padding: '6px 12px', fontSize: '12px' }}>{dealer.active ? 'Deactivate' : 'Activate'}</button></td>
                                             </tr>
                                         ))}
                                     </tbody>
@@ -718,9 +744,9 @@ const ManagerDashboard = () => {
                             </form>
                         </div>
                         <div className="card">
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
-                                <h2>Transaction History</h2>
-                                <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                            <div className="card-header-flex">
+                                <h2 style={{ marginBottom: 0 }}>Transaction History</h2>
+                                <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
                                     <select 
                                         className="form-select" 
                                         style={{ width: 'auto', padding: '6px 10px', fontSize: '13px', margin: 0 }}
@@ -740,7 +766,7 @@ const ManagerDashboard = () => {
                                     </button>
                                 </div>
                             </div>
-                            <div style={{ overflowX: 'auto' }}>
+                            <div className="table-responsive">
                                 <table className="table">
                                     <thead><tr><th>Dealer</th><th>Type</th><th>Count</th><th>Price</th><th>Total</th><th>Date</th></tr></thead>
                                     <tbody>
@@ -764,25 +790,29 @@ const ManagerDashboard = () => {
                 {activeTab === 'profit' && (
                     <div className="fade-in">
                         <div className="card">
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <h2>Profit Overview</h2>
-                                <div>
-                                    <button onClick={downloadProfitPDF} className="btn btn-secondary" style={{ fontSize: '13px', marginRight: '5px' }}>📥 PDF</button>
-                                    <button onClick={downloadProfitExcel} className="btn btn-success" style={{ fontSize: '13px' }}>📊 Excel</button>
+                            <div className="card-header-flex">
+                                <h2 style={{ marginBottom: 0 }}>Profit Overview</h2>
+                                <div style={{ display: 'flex', gap: '8px' }}>
+                                    <button onClick={downloadProfitPDF} className="btn btn-secondary" style={{ fontSize: '13px', padding: '6px 12px' }}>📥 PDF</button>
+                                    <button onClick={downloadProfitExcel} className="btn btn-success" style={{ fontSize: '13px', padding: '6px 12px' }}>📊 Excel</button>
                                 </div>
                             </div>
-                            <div className="grid grid-3">
-                                <div className="stat-card" style={{ background: '#ecfdf5' }}>
-                                    <div className="stat-value" style={{ color: '#059669' }}>₹{(profitData?.totalRevenue || 0).toLocaleString()}</div>
-                                    <div className="stat-label">Total Revenue (From Dealers)</div>
+                            <div className="stats-grid">
+                                <div className="stat-card" style={{ background: '#ecfdf5', borderRadius: '12px', padding: '20px', textAlign: 'center' }}>
+                                    <div className="stat-value" style={{ color: '#059669', fontSize: '24px', fontWeight: 700 }}>₹{(profitData?.totalRevenue || 0).toLocaleString()}</div>
+                                    <div className="stat-label" style={{ fontSize: '12px', color: '#6b7280', textTransform: 'uppercase' }}>Revenue</div>
                                 </div>
-                                <div className="stat-card" style={{ background: '#fef2f2' }}>
-                                    <div className="stat-value" style={{ color: '#dc2626' }}>₹{(profitData?.totalLaborCost || 0).toLocaleString()}</div>
-                                    <div className="stat-label">Total Labor Cost (To Workers)</div>
+                                <div className="stat-card" style={{ background: '#fef2f2', borderRadius: '12px', padding: '20px', textAlign: 'center' }}>
+                                    <div className="stat-value" style={{ color: '#dc2626', fontSize: '24px', fontWeight: 700 }}>₹{(profitData?.totalLaborCost || 0).toLocaleString()}</div>
+                                    <div className="stat-label" style={{ fontSize: '12px', color: '#6b7280', textTransform: 'uppercase' }}>Labor Cost</div>
                                 </div>
-                                <div className="stat-card" style={{ background: '#eff6ff' }}>
-                                    <div className="stat-value" style={{ color: '#2563eb' }}>₹{(profitData?.netProfit || 0).toLocaleString()}</div>
-                                    <div className="stat-label">Net Profit</div>
+                                <div className="stat-card" style={{ background: '#eff6ff', borderRadius: '12px', padding: '20px', textAlign: 'center' }}>
+                                    <div className="stat-value" style={{ color: '#2563eb', fontSize: '24px', fontWeight: 700 }}>₹{(profitData?.netProfit || 0).toLocaleString()}</div>
+                                    <div className="stat-label" style={{ fontSize: '12px', color: '#6b7280', textTransform: 'uppercase' }}>Net Profit</div>
+                                </div>
+                                <div className="stat-card" style={{ background: '#fffbeb', borderRadius: '12px', padding: '20px', textAlign: 'center' }}>
+                                    <div className="stat-value" style={{ color: '#d97706', fontSize: '24px', fontWeight: 700 }}>{analytics.totalWorkers}</div>
+                                    <div className="stat-label" style={{ fontSize: '12px', color: '#6b7280', textTransform: 'uppercase' }}>Workers</div>
                                 </div>
                             </div>
                         </div>
@@ -820,7 +850,7 @@ const ManagerDashboard = () => {
                         </div>
                         <div className="card">
                             <h2>All Types</h2>
-                            <div style={{ overflowX: 'auto' }}>
+                            <div className="table-responsive">
                                 <table className="table">
                                     <thead><tr><th>Name</th><th>Description</th><th>Status</th></tr></thead>
                                     <tbody>
@@ -886,10 +916,10 @@ const ManagerDashboard = () => {
 
                 {activeTab === 'employee' && (
                     <div className="card fade-in">
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
-                            <h2>🏆 Employee of the Week</h2>
+                        <div className="card-header-flex">
+                            <h2 style={{ marginBottom: 0 }}>🏆 Employee of the Week</h2>
                             
-                            <div style={{ display: 'flex', gap: '10px', alignItems: 'center', background: '#f3f4f6', padding: '10px', borderRadius: '8px' }}>
+                            <div style={{ display: 'flex', gap: '10px', alignItems: 'center', background: '#f3f4f6', padding: '10px', borderRadius: '8px', flexWrap: 'wrap' }}>
                                 <select 
                                     className="form-select" 
                                     style={{ width: 'auto', padding: '6px 10px', fontSize: '13px', margin: 0 }}
@@ -917,7 +947,7 @@ const ManagerDashboard = () => {
                                 <button onClick={() => removeEmployeeOfWeek(employeeOfWeek._id)} className="btn" style={{ marginTop: '10px', background: 'rgba(255,255,255,0.2)', color: 'white' }}>Remove Badge</button>
                             </div>
                         )}
-                        <div style={{ overflowX: 'auto' }}>
+                        <div className="table-responsive">
                             <table className="table">
                                 <thead><tr><th>Name</th><th>Email</th><th>Action</th></tr></thead>
                                 <tbody>
@@ -926,7 +956,7 @@ const ManagerDashboard = () => {
                                             <td>{w.name}</td>
                                             <td>{w.email}</td>
                                             <td>
-                                                {!w.isEmployeeOfWeek && <button onClick={() => setEmployeeOfTheWeek(w._id)} className="btn btn-primary" style={{ padding: '5px 10px' }}>Set as Winner</button>}
+                                                {!w.isEmployeeOfWeek && <button onClick={() => setEmployeeOfTheWeek(w._id)} className="btn btn-primary" style={{ padding: '6px 12px', fontSize: '12px' }}>Set as Winner</button>}
                                             </td>
                                         </tr>
                                     ))}
