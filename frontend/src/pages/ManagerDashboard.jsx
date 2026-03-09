@@ -692,12 +692,12 @@ const ManagerDashboard = () => {
                             <h2>All Dealers</h2>
                             <div className="table-responsive">
                                 <table className="table">
-                                    <thead><tr><th>Name</th><th>Contact</th><th>Status</th><th>Action</th></tr></thead>
+                                    <thead><tr><th>Name</th><th className="hide-mobile">Contact</th><th>Status</th><th>Action</th></tr></thead>
                                     <tbody>
                                         {dealers.map(dealer => (
                                             <tr key={dealer._id}>
                                                 <td>{dealer.name}</td>
-                                                <td>{dealer.contactInfo || '-'}</td>
+                                                <td className="hide-mobile">{dealer.contactInfo || '-'}</td>
                                                 <td><span className={`badge ${dealer.active ? 'badge-success' : 'badge-danger'}`}>{dealer.active ? 'Active' : 'Inactive'}</span></td>
                                                 <td><button onClick={() => toggleDealer(dealer._id, dealer.active)} className="btn btn-secondary" style={{ padding: '6px 12px', fontSize: '12px' }}>{dealer.active ? 'Deactivate' : 'Activate'}</button></td>
                                             </tr>
@@ -895,16 +895,16 @@ const ManagerDashboard = () => {
                                     <button onClick={downloadAdvancesExcel} className="btn btn-success" style={{ fontSize: '13px' }}>📊 Excel</button>
                                 </div>
                             </div>
-                            <div style={{ overflowX: 'auto', maxHeight: '400px' }}>
+                            <div className="table-responsive" style={{ maxHeight: '400px' }}>
                                 <table className="table">
-                                    <thead><tr><th>Worker</th><th>Amount</th><th>Date</th><th>Notes</th></tr></thead>
+                                    <thead><tr><th>Worker</th><th>Amount</th><th>Date</th><th className="hide-mobile">Notes</th></tr></thead>
                                     <tbody>
                                         {advancesHistory.map(a => (
                                             <tr key={a._id}>
                                                 <td>{a.worker?.name}</td>
                                                 <td style={{ fontWeight: 'bold', color: '#dc2626' }}>₹{a.amount}</td>
                                                 <td>{new Date(a.date).toLocaleDateString()}</td>
-                                                <td>{a.notes || '-'}</td>
+                                                <td className="hide-mobile">{a.notes || '-'}</td>
                                             </tr>
                                         ))}
                                     </tbody>
@@ -949,12 +949,12 @@ const ManagerDashboard = () => {
                         )}
                         <div className="table-responsive">
                             <table className="table">
-                                <thead><tr><th>Name</th><th>Email</th><th>Action</th></tr></thead>
+                                <thead><tr><th>Name</th><th className="hide-mobile">Email</th><th>Action</th></tr></thead>
                                 <tbody>
                                     {workers.map(w => (
                                         <tr key={w._id}>
                                             <td>{w.name}</td>
-                                            <td>{w.email}</td>
+                                            <td className="hide-mobile">{w.email}</td>
                                             <td>
                                                 {!w.isEmployeeOfWeek && <button onClick={() => setEmployeeOfTheWeek(w._id)} className="btn btn-primary" style={{ padding: '6px 12px', fontSize: '12px' }}>Set as Winner</button>}
                                             </td>
