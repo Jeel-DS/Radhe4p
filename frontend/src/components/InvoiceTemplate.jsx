@@ -11,14 +11,10 @@ const InvoiceTemplate = forwardRef(({ invoiceData }, ref) => {
     } = invoiceData;
 
     return (
-        <div 
-            ref={ref} 
-            style={{ 
-                position: 'absolute', 
-                top: '-9999px', 
-                left: '-9999px',
+        <div
+            ref={ref}
+            style={{
                 width: '794px', /* 210mm approx A4 width at 96 DPI */
-                minHeight: '1123px', /* 297mm approx A4 height */
                 backgroundColor: 'white',
                 padding: '40px',
                 fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
@@ -95,33 +91,30 @@ const InvoiceTemplate = forwardRef(({ invoiceData }, ref) => {
                 borderTop: '2px solid #e5e7eb',
                 paddingTop: '15px'
             }}>
-                <div style={{ 
-                    display: 'flex', 
-                    justifyContent: 'space-between', 
-                    fontSize: '20px', 
-                    fontWeight: 'bold', 
-                    color: '#111827', 
-                    borderTop: 'none', 
-                    paddingTop: '0', 
-                    marginTop: '0' 
+                <div style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    fontSize: '20px',
+                    fontWeight: 'bold',
+                    color: '#111827',
+                    borderTop: 'none',
+                    paddingTop: '0',
+                    marginTop: '0'
                 }}>
                     <span>Net Amount:</span>
                     <span>₹{netAmount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                 </div>
             </div>
-            
+
             <div style={{ clear: 'both' }}></div>
 
             <div style={{
-                position: 'absolute',
-                bottom: '40px',
-                left: '40px',
-                right: '40px',
                 textAlign: 'center',
                 color: '#9ca3af',
                 fontSize: '12px',
                 borderTop: '1px solid #e5e7eb',
-                paddingTop: '20px'
+                paddingTop: '20px',
+                marginTop: '40px'
             }}>
                 <p>Thank you for your business! For any inquiries, please contact +91 9979265814.</p>
             </div>

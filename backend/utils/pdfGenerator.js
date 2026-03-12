@@ -93,7 +93,19 @@ async function generateManagerPDF(startDate = null, endDate = null) {
                 y += itemHeight;
                 doc.fillColor('#333');
                 approvedRequests.forEach((req, i) => {
-                    if (y > 700) { doc.addPage(); y = 50; }
+                    if (y > 700) {
+                        doc.addPage();
+                        y = 50;
+                        // Re-draw header on new page
+                        doc.fillColor('#667eea').rect(50, y, 500, itemHeight).fill();
+                        doc.fillColor('#fff').fontSize(8);
+                        doc.text('Date', 60, y + 6);
+                        doc.text('Worker', 130, y + 6);
+                        doc.text('Dealer', 230, y + 6);
+                        doc.text('Price', 330, y + 6);
+                        doc.text('Total', 430, y + 6);
+                        y += itemHeight;
+                    }
                     if (i % 2 === 1) doc.fillColor('#f9fafb').rect(50, y, 500, itemHeight).fill();
                     doc.fillColor('#333');
                     doc.text(new Date(req.approvalDate).toLocaleDateString(), 60, y + 6);
@@ -214,7 +226,19 @@ async function generateWorkerPDF(workerId, startDate = null, endDate = null) {
                 y += itemHeight;
                 doc.fillColor('#333');
                 earnings.forEach((e, i) => {
-                    if (y > 700) { doc.addPage(); y = 50; }
+                    if (y > 700) {
+                        doc.addPage();
+                        y = 50;
+                        // Re-draw header on new page
+                        doc.fillColor('#667eea').rect(50, y, 500, itemHeight).fill();
+                        doc.fillColor('#fff').fontSize(9);
+                        doc.text('Date', 60, y + 6);
+                        doc.text('Dealer', 140, y + 6);
+                        doc.text('Type', 240, y + 6);
+                        doc.text('Count', 340, y + 6);
+                        doc.text('Total', 440, y + 6);
+                        y += itemHeight;
+                    }
                     if (i % 2 === 1) doc.fillColor('#f4f6f8').rect(50, y, 500, itemHeight).fill();
                     doc.fillColor('#333');
                     doc.text(new Date(e.approvalDate).toLocaleDateString(), 60, y + 6);
@@ -245,7 +269,17 @@ async function generateWorkerPDF(workerId, startDate = null, endDate = null) {
                 y += itemHeight;
                 doc.fillColor('#333');
                 advances.forEach((a, i) => {
-                    if (y > 700) { doc.addPage(); y = 50; }
+                    if (y > 700) {
+                        doc.addPage();
+                        y = 50;
+                        // Re-draw header on new page
+                        doc.fillColor('#667eea').rect(50, y, 500, itemHeight).fill();
+                        doc.fillColor('#fff').fontSize(9);
+                        doc.text('Date', 60, y + 6);
+                        doc.text('Amount', 200, y + 6);
+                        doc.text('Given By', 350, y + 6);
+                        y += itemHeight;
+                    }
                     if (i % 2 === 1) doc.fillColor('#f4f6f8').rect(50, y, 500, itemHeight).fill();
                     doc.fillColor('#333');
                     doc.text(new Date(a.date).toLocaleDateString(), 60, y + 6);

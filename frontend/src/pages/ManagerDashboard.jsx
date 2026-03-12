@@ -248,20 +248,19 @@ const ManagerDashboard = () => {
                     });
 
                     const imgData = canvas.toDataURL('image/png');
-                    const pdf = new jsPDF('p', 'mm', 'a4');
+
+                    // Calculate PDF dimensions based on content
                     const pdfWidth = 210;
-                    const pdfHeight = 297;
                     const imgWidth = canvas.width;
                     const imgHeight = canvas.height;
-                    const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
-                    const imgX = (pdfWidth - imgWidth * ratio) / 2;
-                    const imgY = 0;
-                    
-                    pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidth * ratio, imgHeight * ratio);
-                    
+                    const pdfHeight = (imgHeight * pdfWidth) / imgWidth;
+
+                    const pdf = new jsPDF('p', 'mm', [pdfWidth, pdfHeight]);
+                    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+
                     const safeName = dealer.name.replace(/\s+/g, '_');
                     pdf.save(`Invoice_${safeName}.pdf`);
-                    
+
                     showMessage('success', 'Invoice PDF generated successfully!');
                 } catch (error) {
                     console.error("Error generating PDF:", error);
@@ -338,20 +337,19 @@ const ManagerDashboard = () => {
                         });
 
                         const imgData = canvas.toDataURL('image/png');
-                        const pdf = new jsPDF('p', 'mm', 'a4');
+
+                        // Calculate PDF dimensions based on content
                         const pdfWidth = 210;
-                        const pdfHeight = 297;
                         const imgWidth = canvas.width;
                         const imgHeight = canvas.height;
-                        const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
-                        const imgX = (pdfWidth - imgWidth * ratio) / 2;
-                        const imgY = 0;
-                        
-                        pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidth * ratio, imgHeight * ratio);
-                        
+                        const pdfHeight = (imgHeight * pdfWidth) / imgWidth;
+
+                        const pdf = new jsPDF('p', 'mm', [pdfWidth, pdfHeight]);
+                        pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+
                         const safeName = worker.name.replace(/\s+/g, '_');
                         pdf.save(`WorkerReport_${safeName}.pdf`);
-                        
+
                         showMessage('success', 'Worker Report PDF generated successfully!');
                     } catch (error) {
                         console.error("Error generating PDF:", error);
@@ -747,8 +745,8 @@ const ManagerDashboard = () => {
                             <div className="card-header-flex">
                                 <h2 style={{ marginBottom: 0 }}>Transaction History</h2>
                                 <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
-                                    <select 
-                                        className="form-select" 
+                                    <select
+                                        className="form-select"
                                         style={{ width: 'auto', padding: '6px 10px', fontSize: '13px', margin: 0 }}
                                         value={selectedDealerForInvoice}
                                         onChange={e => setSelectedDealerForInvoice(e.target.value)}
@@ -756,9 +754,9 @@ const ManagerDashboard = () => {
                                         <option value="">Select Dealer for Invoice</option>
                                         {dealers.map(d => <option key={d._id} value={d._id}>{d.name}</option>)}
                                     </select>
-                                    <button 
-                                        onClick={generateDealerInvoicePDF} 
-                                        className="btn btn-primary" 
+                                    <button
+                                        onClick={generateDealerInvoicePDF}
+                                        className="btn btn-primary"
                                         style={{ fontSize: '13px', whiteSpace: 'nowrap' }}
                                         disabled={isGeneratingPDF}
                                     >
@@ -918,10 +916,10 @@ const ManagerDashboard = () => {
                     <div className="card fade-in">
                         <div className="card-header-flex">
                             <h2 style={{ marginBottom: 0 }}>🏆 Employee of the Week</h2>
-                            
+
                             <div style={{ display: 'flex', gap: '10px', alignItems: 'center', background: '#f3f4f6', padding: '10px', borderRadius: '8px', flexWrap: 'wrap' }}>
-                                <select 
-                                    className="form-select" 
+                                <select
+                                    className="form-select"
                                     style={{ width: 'auto', padding: '6px 10px', fontSize: '13px', margin: 0 }}
                                     value={selectedWorkerForReport}
                                     onChange={e => setSelectedWorkerForReport(e.target.value)}
@@ -929,9 +927,9 @@ const ManagerDashboard = () => {
                                     <option value="">Select Worker for Report</option>
                                     {workers.map(w => <option key={w._id} value={w._id}>{w.name}</option>)}
                                 </select>
-                                <button 
-                                    onClick={generateWorkerReportPDF} 
-                                    className="btn btn-primary" 
+                                <button
+                                    onClick={generateWorkerReportPDF}
+                                    className="btn btn-primary"
                                     style={{ fontSize: '13px', whiteSpace: 'nowrap' }}
                                     disabled={isGeneratingWorkerReport}
                                 >

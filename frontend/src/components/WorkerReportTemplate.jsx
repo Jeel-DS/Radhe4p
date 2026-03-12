@@ -16,14 +16,10 @@ const WorkerReportTemplate = forwardRef(({ reportData }, ref) => {
     } = reportData;
 
     return (
-        <div 
-            ref={ref} 
-            style={{ 
-                position: 'absolute', 
-                top: '-9999px', 
-                left: '-9999px',
+        <div
+            ref={ref}
+            style={{
                 width: '794px', /* 210mm approx A4 width at 96 DPI */
-                minHeight: '1123px', /* 297mm approx A4 height */
                 backgroundColor: 'white',
                 padding: '40px',
                 fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
@@ -165,41 +161,38 @@ const WorkerReportTemplate = forwardRef(({ reportData }, ref) => {
                     <span>Total Advance Taken:</span>
                     <span>-₹{totalAdvance.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                 </div>
-                <div style={{ 
-                    display: 'flex', 
-                    justifyContent: 'space-between', 
-                    fontSize: '18px', 
-                    fontWeight: 'bold', 
-                    color: '#111827', 
-                    borderTop: '1px solid #d1d5db', 
-                    paddingTop: '10px', 
-                    marginTop: '10px' 
+                <div style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    fontSize: '18px',
+                    fontWeight: 'bold',
+                    color: '#111827',
+                    borderTop: '1px solid #d1d5db',
+                    paddingTop: '10px',
+                    marginTop: '10px'
                 }}>
                     <span>Final Payable Amount:</span>
                     <span>₹{netPayable.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                 </div>
             </div>
-            
+
             <div style={{ clear: 'both' }}></div>
 
             {/* FOOTER / SIGNATURES */}
             <div style={{
-                position: 'absolute',
-                bottom: '60px',
-                left: '40px',
-                right: '40px',
                 display: 'flex',
                 justifyContent: 'space-between',
-                marginTop: '50px'
+                marginTop: '50px',
+                paddingTop: '20px'
             }}>
                 <div style={{ textAlign: 'center', width: '200px' }}>
                     <div style={{ borderBottom: '1px solid #111827', marginBottom: '10px', height: '40px' }}></div>
                     <strong>Worker Signature</strong>
                 </div>
                 <div style={{ textAlign: 'center', width: '200px' }}>
-                    <div style={{ 
-                        borderBottom: '2px dashed #9ca3af', 
-                        marginBottom: '10px', 
+                    <div style={{
+                        borderBottom: '2px dashed #9ca3af',
+                        marginBottom: '10px',
                         height: '40px',
                         display: 'flex',
                         alignItems: 'center',
