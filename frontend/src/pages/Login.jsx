@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import t from '../translations';
 
 const Login = () => {
     const [email, setEmail] = useState('');
@@ -54,10 +55,10 @@ const Login = () => {
                         backgroundClip: 'text',
                         marginBottom: '8px'
                     }}>
-                        Radhe 4P
+                        {t.login.title}
                     </h1>
                     <p style={{ color: 'var(--text-light)', fontSize: '14px' }}>
-                        Diamond Management System
+                        {t.login.subtitle}
                     </p>
                 </div>
 
@@ -77,25 +78,25 @@ const Login = () => {
                     )}
 
                     <div className="form-group">
-                        <label className="form-label">Email Address</label>
+                        <label className="form-label">{t.common.email}</label>
                         <input
                             type="email"
                             className="form-input"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
-                            placeholder="Enter your email"
+                            placeholder={t.common.enterEmail}
                             required
                         />
                     </div>
 
                     <div className="form-group">
-                        <label className="form-label">Password</label>
+                        <label className="form-label">{t.common.password}</label>
                         <input
                             type="password"
                             className="form-input"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            placeholder="Enter your password"
+                            placeholder={t.common.enterPassword}
                             required
                         />
                     </div>
@@ -106,7 +107,7 @@ const Login = () => {
                         style={{ width: '100%', marginTop: '8px' }}
                         disabled={loading}
                     >
-                        {loading ? 'Logging in...' : 'Login'}
+                        {loading ? t.common.loggingIn : t.common.login}
                     </button>
                 </form>
 

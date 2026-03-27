@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
+import t from '../translations';
 
 const WorkerDashboard = () => {
     const { user, logout } = useAuth();
@@ -54,12 +55,12 @@ const WorkerDashboard = () => {
 
         try {
             await api.post('/worker/work-request', formData);
-            setMessage({ type: 'success', text: 'Work request submitted successfully!' });
+            setMessage({ type: 'success', text: t.messages.workRequestSuccess });
             setFormData({ dealer: '', diamondType: '', diamondCount: '' });
         } catch (error) {
             setMessage({
                 type: 'error',
-                text: error.response?.data?.message || 'Failed to submit request'
+                text: error.response?.data?.message || t.messages.workRequestFail
             });
         } finally {
             setSubmitting(false);
@@ -80,7 +81,7 @@ const WorkerDashboard = () => {
             link.click();
             link.remove();
         } catch (error) {
-            alert('Failed to download report');
+            alert(t.messages.pdfError);
         }
     };
 

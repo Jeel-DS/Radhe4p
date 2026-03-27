@@ -1,4 +1,5 @@
 import React, { forwardRef } from 'react';
+import t from '../translations';
 
 const InvoiceTemplate = forwardRef(({ invoiceData }, ref) => {
     if (!invoiceData) return null;
@@ -32,11 +33,11 @@ const InvoiceTemplate = forwardRef(({ invoiceData }, ref) => {
                 marginBottom: '30px'
             }}>
                 <div>
-                    <h1 style={{ margin: '0 0 5px 0', color: '#111827', fontSize: '28px' }}>Radhe 4P</h1>
+                    <h1 style={{ margin: '0 0 5px 0', color: '#111827', fontSize: '28px' }}>{t.common.appName}</h1>
                     <p style={{ margin: '2px 0', color: '#6b7280', fontSize: '14px' }}>3rd FLOOR, ROOM NO. 11,</p>
                     <p style={{ margin: '2px 0', color: '#6b7280', fontSize: '14px' }}>PLOT NO.11, BAJARANG APP., MATA VADI,</p>
                     <p style={{ margin: '2px 0', color: '#6b7280', fontSize: '14px' }}>VARACHHA, SURAT, GUJARAT-395006</p>
-                    <p style={{ margin: '2px 0', color: '#6b7280', fontSize: '14px' }}>Phone: +91 9979265814</p>
+                    <p style={{ margin: '2px 0', color: '#6b7280', fontSize: '14px' }}>ફોન: +91 9979265814</p>
                 </div>
             </div>
 
@@ -48,7 +49,7 @@ const InvoiceTemplate = forwardRef(({ invoiceData }, ref) => {
                 marginBottom: '30px',
                 borderLeft: '4px solid #4f46e5'
             }}>
-                <h3 style={{ margin: 0, color: '#1f2937' }}>Dealer Name: {dealerName}</h3>
+                <h3 style={{ margin: 0, color: '#1f2937' }}>{t.invoice.billTo} {dealerName}</h3>
             </div>
 
             <table style={{
@@ -58,11 +59,11 @@ const InvoiceTemplate = forwardRef(({ invoiceData }, ref) => {
             }}>
                 <thead>
                     <tr>
-                        <th style={{ backgroundColor: '#4f46e5', color: 'white', padding: '12px', textAlign: 'left', fontWeight: '600' }}>S.No</th>
-                        <th style={{ backgroundColor: '#4f46e5', color: 'white', padding: '12px', textAlign: 'left', fontWeight: '600' }}>Date</th>
-                        <th style={{ backgroundColor: '#4f46e5', color: 'white', padding: '12px', textAlign: 'left', fontWeight: '600' }}>Diamonds Received</th>
-                        <th style={{ backgroundColor: '#4f46e5', color: 'white', padding: '12px', textAlign: 'right', fontWeight: '600' }}>Price per Diamond</th>
-                        <th style={{ backgroundColor: '#4f46e5', color: 'white', padding: '12px', textAlign: 'right', fontWeight: '600' }}>Amount</th>
+                        <th style={{ backgroundColor: '#4f46e5', color: 'white', padding: '12px', textAlign: 'left', fontWeight: '600' }}>ક્રમ</th>
+                        <th style={{ backgroundColor: '#4f46e5', color: 'white', padding: '12px', textAlign: 'left', fontWeight: '600' }}>{t.common.date}</th>
+                        <th style={{ backgroundColor: '#4f46e5', color: 'white', padding: '12px', textAlign: 'left', fontWeight: '600' }}>હીરા મળ્યા</th>
+                        <th style={{ backgroundColor: '#4f46e5', color: 'white', padding: '12px', textAlign: 'right', fontWeight: '600' }}>{t.manager.pricePerDiamond}</th>
+                        <th style={{ backgroundColor: '#4f46e5', color: 'white', padding: '12px', textAlign: 'right', fontWeight: '600' }}>{t.common.amount}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -78,7 +79,7 @@ const InvoiceTemplate = forwardRef(({ invoiceData }, ref) => {
                         ))
                     ) : (
                         <tr>
-                            <td colSpan="5" style={{ padding: '12px', textAlign: 'center', color: '#6b7280' }}>No transactions found.</td>
+                            <td colSpan="5" style={{ padding: '12px', textAlign: 'center', color: '#6b7280' }}>{t.common.noData}</td>
                         </tr>
                     )}
                 </tbody>
@@ -101,7 +102,7 @@ const InvoiceTemplate = forwardRef(({ invoiceData }, ref) => {
                     paddingTop: '0',
                     marginTop: '0'
                 }}>
-                    <span>Net Amount:</span>
+                    <span>{t.invoice.netAmount}:</span>
                     <span>₹{netAmount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                 </div>
             </div>
@@ -116,7 +117,7 @@ const InvoiceTemplate = forwardRef(({ invoiceData }, ref) => {
                 paddingTop: '20px',
                 marginTop: '40px'
             }}>
-                <p>Thank you for your business! For any inquiries, please contact +91 9979265814.</p>
+                <p>અમારી સાથે વ્યવહાર કરવા બદલ આભાર! કોઈપણ પૂછપરછ માટે, કૃપા કરીને +91 9979265814 નો સંપર્ક કરો.</p>
             </div>
         </div>
     );

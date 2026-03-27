@@ -7,6 +7,7 @@ import * as XLSX from 'xlsx';
 import html2canvas from 'html2canvas';
 import InvoiceTemplate from '../components/InvoiceTemplate';
 import WorkerReportTemplate from '../components/WorkerReportTemplate';
+import t from '../translations';
 
 const ManagerDashboard = () => {
     const { user, logout } = useAuth();
@@ -96,12 +97,12 @@ const ManagerDashboard = () => {
             showMessage('success', response.data.message);
             fetchAllData();
         } catch (error) {
-            showMessage('error', 'Failed to remove employee of the week status');
+            showMessage('error', t.messages.error);
         }
     };
 
     const approveRequest = async (id) => {
-        const price = prompt('Enter price per diamond:');
+        const price = prompt(t.messages.enterPrice);
         if (!price || isNaN(price)) return;
 
         try {
@@ -109,22 +110,22 @@ const ManagerDashboard = () => {
                 status: 'approved',
                 assignedPrice: parseFloat(price)
             });
-            showMessage('success', 'Request approved successfully!');
+            showMessage('success', t.messages.requestApproved);
             fetchAllData();
         } catch (error) {
-            showMessage('error', error.response?.data?.message || 'Failed to approve request');
+            showMessage('error', error.response?.data?.message || t.messages.error);
         }
     };
 
     const rejectRequest = async (id) => {
-        if (!confirm('Are you sure you want to reject this request?')) return;
+        if (!confirm(t.messages.confirmReject)) return;
 
         try {
             await api.put(`/manager/approve-request/${id}`, { status: 'rejected' });
-            showMessage('success', 'Request rejected');
+            showMessage('success', t.messages.requestRejected);
             fetchAllData();
         } catch (error) {
-            showMessage('error', 'Failed to reject request');
+            showMessage('error', t.messages.error);
         }
     };
 
@@ -132,11 +133,11 @@ const ManagerDashboard = () => {
         e.preventDefault();
         try {
             await api.post('/manager/dealers', dealerForm);
-            showMessage('success', 'Dealer created successfully!');
+            showMessage('success', t.messages.dealerCreated);
             setDealerForm({ name: '', contactInfo: '' });
             fetchAllData();
         } catch (error) {
-            showMessage('error', error.response?.data?.message || 'Failed to create dealer');
+            showMessage('error', error.response?.data?.message || t.messages.error);
         }
     };
 
@@ -145,7 +146,7 @@ const ManagerDashboard = () => {
             await api.put(`/manager/dealers/${id}`, { active: !currentStatus });
             fetchAllData();
         } catch (error) {
-            showMessage('error', 'Failed to update dealer');
+            showMessage('error', t.messages.error);
         }
     };
 
@@ -153,11 +154,11 @@ const ManagerDashboard = () => {
         e.preventDefault();
         try {
             await api.post('/manager/diamond-types', typeForm);
-            showMessage('success', 'Diamond type created successfully!');
+            showMessage('success', t.messages.typeCreated);
             setTypeForm({ name: '', description: '' });
             fetchAllData();
         } catch (error) {
-            showMessage('error', error.response?.data?.message || 'Failed to create diamond type');
+            showMessage('error', error.response?.data?.message || t.messages.error);
         }
     };
 
@@ -165,11 +166,11 @@ const ManagerDashboard = () => {
         e.preventDefault();
         try {
             await api.post('/manager/advances', advanceForm);
-            showMessage('success', 'Advance given successfully!');
+            showMessage('success', t.messages.advanceGiven);
             setAdvanceForm({ worker: '', amount: '', notes: '' });
             fetchAllData();
         } catch (error) {
-            showMessage('error', error.response?.data?.message || 'Failed to give advance');
+            showMessage('error', error.response?.data?.message || t.messages.error);
         }
     };
 
@@ -177,11 +178,11 @@ const ManagerDashboard = () => {
         e.preventDefault();
         try {
             await api.post('/auth/register', { ...workerForm, role: 'worker' });
-            showMessage('success', 'Worker created successfully!');
+            showMessage('success', t.messages.workerCreated);
             setWorkerForm({ name: '', email: '', password: '' });
             fetchAllData();
         } catch (error) {
-            showMessage('error', error.response?.data?.message || 'Failed to create worker');
+            showMessage('error', error.response?.data?.message || t.messages.error);
         }
     };
 
@@ -189,17 +190,17 @@ const ManagerDashboard = () => {
         e.preventDefault();
         try {
             await api.post('/manager/dealer-transactions', transactionForm);
-            showMessage('success', 'Transaction recorded successfully!');
+            showMessage('success', t.messages.transactionRecorded);
             setTransactionForm({ dealer: '', diamondType: '', count: '', pricePerDiamond: '', date: '' });
             fetchAllData();
         } catch (error) {
-            showMessage('error', error.response?.data?.message || 'Failed to record transaction');
+            showMessage('error', error.response?.data?.message || t.messages.error);
         }
     };
 
     const generateDealerInvoicePDF = async () => {
         if (!selectedDealerForInvoice) {
-            showMessage('error', 'Please select a dealer to generate invoice');
+            showMessage('error', t.messages.selectDealer);
             return;
         }
 
@@ -208,21 +209,21 @@ const ManagerDashboard = () => {
 
         const dealerTxns = dealerTransactions.filter(t => t.dealer?._id === selectedDealerForInvoice);
         if (dealerTxns.length === 0) {
-            showMessage('error', 'No transactions found for this dealer');
+            showMessage('error', t.messages.noTransactions);
             return;
         }
 
         let subtotal = 0;
-        const formattedTxns = dealerTxns.map(t => {
-            const amount = t.count * t.pricePerDiamond;
+        const formattedTxns = dealerTxns.map(t_txn => {
+            const amount = t_txn.count * t_txn.pricePerDiamond;
             subtotal += amount;
             return {
-                id: t._id,
-                type: t.diamondType?.name || 'N/A',
-                count: t.count,
-                price: t.pricePerDiamond,
+                id: t_txn._id,
+                type: t_txn.diamondType?.name || 'N/A',
+                count: t_txn.count,
+                price: t_txn.pricePerDiamond,
                 amount: amount,
-                date: new Date(t.date).toLocaleDateString()
+                date: new Date(t_txn.date).toLocaleDateString()
             };
         });
 
@@ -261,10 +262,10 @@ const ManagerDashboard = () => {
                     const safeName = dealer.name.replace(/\s+/g, '_');
                     pdf.save(`Invoice_${safeName}.pdf`);
 
-                    showMessage('success', 'Invoice PDF generated successfully!');
+                    showMessage('success', t.messages.pdfSuccess);
                 } catch (error) {
                     console.error("Error generating PDF:", error);
-                    showMessage('error', 'Failed to generate PDF');
+                    showMessage('error', t.messages.pdfError);
                 } finally {
                     setIsGeneratingPDF(false);
                 }
@@ -274,7 +275,7 @@ const ManagerDashboard = () => {
 
     const generateWorkerReportPDF = async () => {
         if (!selectedWorkerForReport) {
-            showMessage('error', 'Please select a worker to generate report');
+            showMessage('error', t.messages.selectWorker);
             return;
         }
 
@@ -350,10 +351,10 @@ const ManagerDashboard = () => {
                         const safeName = worker.name.replace(/\s+/g, '_');
                         pdf.save(`WorkerReport_${safeName}.pdf`);
 
-                        showMessage('success', 'Worker Report PDF generated successfully!');
+                        showMessage('success', t.messages.pdfSuccess);
                     } catch (error) {
                         console.error("Error generating PDF:", error);
-                        showMessage('error', 'Failed to generate worker report');
+                        showMessage('error', t.messages.pdfError);
                     } finally {
                         setIsGeneratingWorkerReport(false);
                     }
@@ -362,7 +363,7 @@ const ManagerDashboard = () => {
 
         } catch (error) {
             console.error('Error fetching worker report:', error);
-            showMessage('error', 'Failed to generate worker report. Ensure API endpoint exists.');
+            showMessage('error', t.messages.pdfError);
             setIsGeneratingWorkerReport(false);
         }
     };
@@ -376,18 +377,18 @@ const ManagerDashboard = () => {
         // Header
         doc.setFontSize(20);
         doc.setTextColor(102, 126, 234);
-        doc.text('Radhe 4P Diamond Management System', 105, 15, { align: 'center' });
+        doc.text(t.common.appName + ' ' + t.common.systemName, 105, 15, { align: 'center' });
 
         doc.setFontSize(14);
         doc.setTextColor(51, 51, 51);
-        doc.text('Advance History Report', 105, 25, { align: 'center' });
+        doc.text(t.manager.advanceHistory, 105, 25, { align: 'center' });
 
         doc.setFontSize(10);
         doc.setTextColor(100);
         const dateStr = new Date().toLocaleString();
-        doc.text(`Generated on: ${dateStr}`, 105, 32, { align: 'center' });
+        doc.text(`${t.common.date}: ${dateStr}`, 105, 32, { align: 'center' });
 
-        const tableColumn = ["Worker Name", "Email", "Amount", "Date", "Notes"];
+        const tableColumn = [t.manager.workerName, t.common.email, t.manager.amount, t.common.date, t.manager.notes];
         const tableRows = advancesHistory.map(advance => [
             advance.worker?.name || 'N/A',
             advance.worker?.email || 'N/A',
@@ -419,11 +420,11 @@ const ManagerDashboard = () => {
 
     const downloadAdvancesExcel = () => {
         const data = advancesHistory.map(advance => ({
-            "Worker Name": advance.worker?.name || 'N/A',
-            "Email": advance.worker?.email || 'N/A',
-            "Amount": advance.amount,
-            "Date": new Date(advance.date).toLocaleDateString(),
-            "Notes": advance.notes || '-'
+            [t.manager.workerName]: advance.worker?.name || 'N/A',
+            [t.common.email]: advance.worker?.email || 'N/A',
+            [t.manager.amount]: advance.amount,
+            [t.common.date]: new Date(advance.date).toLocaleDateString(),
+            [t.manager.notes]: advance.notes || '-'
         }));
 
         const ws = XLSX.utils.json_to_sheet(data);
@@ -438,25 +439,25 @@ const ManagerDashboard = () => {
         // Header
         doc.setFontSize(20);
         doc.setTextColor(102, 126, 234);
-        doc.text('Radhe 4P Diamond Management System', 105, 15, { align: 'center' });
+        doc.text(t.common.appName + ' ' + t.common.systemName, 105, 15, { align: 'center' });
 
         doc.setFontSize(14);
         doc.setTextColor(51, 51, 51);
-        doc.text('Dealer Transaction History', 105, 25, { align: 'center' });
+        doc.text(t.manager.transactionHistory, 105, 25, { align: 'center' });
 
         doc.setFontSize(10);
         doc.setTextColor(100);
         const dateStr = new Date().toLocaleString();
-        doc.text(`Generated on: ${dateStr}`, 105, 32, { align: 'center' });
+        doc.text(`${t.common.date}: ${dateStr}`, 105, 32, { align: 'center' });
 
-        const tableColumn = ["Dealer", "Type", "Count", "Price", "Total", "Date"];
-        const tableRows = dealerTransactions.map(t => [
-            t.dealer?.name || 'N/A',
-            t.diamondType?.name || 'N/A',
-            t.count,
-            `Rs. ${t.pricePerDiamond}`,
-            `Rs. ${(t.totalAmount || 0).toLocaleString()}`,
-            new Date(t.date).toLocaleDateString()
+        const tableColumn = [t.manager.dealer, t.manager.type, t.manager.count, t.common.price, t.common.total, t.common.date];
+        const tableRows = dealerTransactions.map(t_txn => [
+            t_txn.dealer?.name || 'N/A',
+            t_txn.diamondType?.name || 'N/A',
+            t_txn.count,
+            `Rs. ${t_txn.pricePerDiamond}`,
+            `Rs. ${(t_txn.totalAmount || 0).toLocaleString()}`,
+            new Date(t_txn.date).toLocaleDateString()
         ]);
 
         doc.autoTable({
@@ -481,13 +482,13 @@ const ManagerDashboard = () => {
     };
 
     const downloadTransactionsExcel = () => {
-        const data = dealerTransactions.map(t => ({
-            "Dealer": t.dealer?.name || 'N/A',
-            "Type": t.diamondType?.name || 'N/A',
-            "Count": t.count,
-            "Price": t.pricePerDiamond,
-            "Total": t.totalAmount || 0,
-            "Date": new Date(t.date).toLocaleDateString()
+        const data = dealerTransactions.map(t_txn => ({
+            [t.manager.dealer]: t_txn.dealer?.name || 'N/A',
+            [t.manager.type]: t_txn.diamondType?.name || 'N/A',
+            [t.manager.count]: t_txn.count,
+            [t.common.price]: t_txn.pricePerDiamond,
+            [t.common.total]: t_txn.totalAmount || 0,
+            [t.common.date]: new Date(t_txn.date).toLocaleDateString()
         }));
 
         const ws = XLSX.utils.json_to_sheet(data);
@@ -502,23 +503,23 @@ const ManagerDashboard = () => {
         // Header
         doc.setFontSize(20);
         doc.setTextColor(102, 126, 234);
-        doc.text('Radhe 4P Diamond Management System', 105, 15, { align: 'center' });
+        doc.text(t.common.appName + ' ' + t.common.systemName, 105, 15, { align: 'center' });
 
         doc.setFontSize(14);
         doc.setTextColor(51, 51, 51);
-        doc.text('Profit Overview Report', 105, 25, { align: 'center' });
+        doc.text(t.manager.profitOverview, 105, 25, { align: 'center' });
 
         doc.setFontSize(10);
         doc.setTextColor(100);
         const dateStr = new Date().toLocaleString();
-        doc.text(`Generated on: ${dateStr}`, 105, 32, { align: 'center' });
+        doc.text(`${t.common.date}: ${dateStr}`, 105, 32, { align: 'center' });
 
         // Financial Summary Table
-        const tableColumn = ["Metric", "Amount"];
+        const tableColumn = [t.messages.metric, t.manager.amount];
         const tableRows = [
-            ["Total Revenue (From Dealers)", `Rs. ${(profitData?.totalRevenue || 0).toLocaleString()}`],
-            ["Total Labor Cost (To Workers)", `Rs. ${(profitData?.totalLaborCost || 0).toLocaleString()}`],
-            ["Net Profit", `Rs. ${(profitData?.netProfit || 0).toLocaleString()}`]
+            [t.manager.totalRevenue, `Rs. ${(profitData?.totalRevenue || 0).toLocaleString()}`],
+            [t.manager.totalLabor, `Rs. ${(profitData?.totalLaborCost || 0).toLocaleString()}`],
+            [t.manager.netProfit, `Rs. ${(profitData?.netProfit || 0).toLocaleString()}`]
         ];
 
         doc.autoTable({
@@ -542,16 +543,16 @@ const ManagerDashboard = () => {
         // Footer
         doc.setFontSize(8);
         doc.setTextColor(150);
-        doc.text('Confidential Financial Report', 105, 290, { align: 'center' });
+        doc.text(t.messages.confidentialReport, 105, 290, { align: 'center' });
 
         doc.save(`profit-report-${Date.now()}.pdf`);
     };
 
     const downloadProfitExcel = () => {
         const data = [{
-            "Total Revenue": profitData?.totalRevenue || 0,
-            "Total Labor Cost": profitData?.totalLaborCost || 0,
-            "Net Profit": profitData?.netProfit || 0
+            [t.manager.totalRevenue]: profitData?.totalRevenue || 0,
+            [t.manager.totalLabor]: profitData?.totalLaborCost || 0,
+            [t.manager.netProfit]: profitData?.netProfit || 0
         }];
 
         const ws = XLSX.utils.json_to_sheet(data);
@@ -578,36 +579,36 @@ const ManagerDashboard = () => {
             {/* Sidebar */}
             <div className={`sidebar ${isSidebarOpen ? 'open' : ''}`}>
                 <div className="sidebar-header">
-                    <h1>Radhe 4P</h1>
+                    <h1>{t.common.appName}</h1>
                 </div>
                 <div className="sidebar-nav">
                     <div className={`nav-item ${activeTab === 'approvals' ? 'active' : ''}`} onClick={() => { setActiveTab('approvals'); setIsSidebarOpen(false); }}>
-                        <span>📋 Approvals ({pendingRequests.length})</span>
+                        <span>📋 {t.nav.approvals} ({pendingRequests.length})</span>
                     </div>
                     <div className={`nav-item ${activeTab === 'dealers' ? 'active' : ''}`} onClick={() => { setActiveTab('dealers'); setIsSidebarOpen(false); }}>
-                        <span>🤝 Dealers</span>
+                        <span>🤝 {t.nav.dealers}</span>
                     </div>
                     <div className={`nav-item ${activeTab === 'transactions' ? 'active' : ''}`} onClick={() => { setActiveTab('transactions'); setIsSidebarOpen(false); }}>
-                        <span>💸 Transactions</span>
+                        <span>💸 {t.nav.transactions}</span>
                     </div>
                     <div className={`nav-item ${activeTab === 'profit' ? 'active' : ''}`} onClick={() => { setActiveTab('profit'); setIsSidebarOpen(false); }}>
-                        <span>📈 Profit</span>
+                        <span>📈 {t.nav.profit}</span>
                     </div>
                     <div className={`nav-item ${activeTab === 'types' ? 'active' : ''}`} onClick={() => { setActiveTab('types'); setIsSidebarOpen(false); }}>
-                        <span>💎 Types</span>
+                        <span>💎 {t.nav.types}</span>
                     </div>
                     <div className={`nav-item ${activeTab === 'advances' ? 'active' : ''}`} onClick={() => { setActiveTab('advances'); setIsSidebarOpen(false); }}>
-                        <span>💰 Advances</span>
+                        <span>💰 {t.nav.advances}</span>
                     </div>
                     <div className={`nav-item ${activeTab === 'employee' ? 'active' : ''}`} onClick={() => { setActiveTab('employee'); setIsSidebarOpen(false); }}>
-                        <span>🏆 Employee of Week</span>
+                        <span>🏆 {t.nav.employeeOfWeek}</span>
                     </div>
                     <div className={`nav-item ${activeTab === 'add-worker' ? 'active' : ''}`} onClick={() => { setActiveTab('add-worker'); setIsSidebarOpen(false); }}>
-                        <span>👤 Add Worker</span>
+                        <span>👤 {t.nav.addWorker}</span>
                     </div>
                 </div>
                 <div className="sidebar-footer">
-                    <button onClick={logout} className="btn btn-secondary" style={{ width: '100%' }}>Logout</button>
+                    <button onClick={logout} className="btn btn-secondary" style={{ width: '100%' }}>{t.common.logout}</button>
                 </div>
             </div>
 
@@ -640,13 +641,13 @@ const ManagerDashboard = () => {
                 {/* Tab Content */}
                 {activeTab === 'approvals' && (
                     <div className="card fade-in">
-                        <h2>Pending Work Requests</h2>
-                        {pendingRequests.length === 0 ? <p>No pending requests</p> : (
+                        <h2>{t.manager.pendingRequests}</h2>
+                        {pendingRequests.length === 0 ? <p>{t.manager.noPending}</p> : (
                             <div className="table-responsive">
                                 <table className="table">
                                     <thead>
                                         <tr>
-                                            <th>Worker</th><th>Dealer</th><th>Type</th><th>Count</th><th>Date</th><th>Actions</th>
+                                            <th>{t.manager.worker}</th><th>{t.manager.dealer}</th><th>{t.manager.type}</th><th>{t.manager.count}</th><th>{t.common.date}</th><th>{t.common.actions}</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -673,31 +674,31 @@ const ManagerDashboard = () => {
                 {activeTab === 'dealers' && (
                     <div className="grid grid-2 fade-in">
                         <div className="card">
-                            <h2>Create Dealer</h2>
+                            <h2>{t.manager.createDealer}</h2>
                             <form onSubmit={createDealer}>
                                 <div className="form-group">
-                                    <label>Name</label>
+                                    <label>{t.common.name}</label>
                                     <input type="text" className="form-input" value={dealerForm.name} onChange={e => setDealerForm({ ...dealerForm, name: e.target.value })} required />
                                 </div>
                                 <div className="form-group">
-                                    <label>Contact Info</label>
+                                    <label>{t.manager.contactInfo}</label>
                                     <input type="text" className="form-input" value={dealerForm.contactInfo} onChange={e => setDealerForm({ ...dealerForm, contactInfo: e.target.value })} />
                                 </div>
-                                <button type="submit" className="btn btn-primary">Create</button>
+                                <button type="submit" className="btn btn-primary">{t.common.save}</button>
                             </form>
                         </div>
                         <div className="card">
-                            <h2>All Dealers</h2>
+                            <h2>{t.manager.allDealers}</h2>
                             <div className="table-responsive">
                                 <table className="table">
-                                    <thead><tr><th>Name</th><th className="hide-mobile">Contact</th><th>Status</th><th>Action</th></tr></thead>
+                                    <thead><tr><th>{t.common.name}</th><th className="hide-mobile">{t.manager.contactInfo}</th><th>{t.common.status}</th><th>{t.common.actions}</th></tr></thead>
                                     <tbody>
                                         {dealers.map(dealer => (
                                             <tr key={dealer._id}>
                                                 <td>{dealer.name}</td>
                                                 <td className="hide-mobile">{dealer.contactInfo || '-'}</td>
-                                                <td><span className={`badge ${dealer.active ? 'badge-success' : 'badge-danger'}`}>{dealer.active ? 'Active' : 'Inactive'}</span></td>
-                                                <td><button onClick={() => toggleDealer(dealer._id, dealer.active)} className="btn btn-secondary" style={{ padding: '6px 12px', fontSize: '12px' }}>{dealer.active ? 'Deactivate' : 'Activate'}</button></td>
+                                                <td><span className={`badge ${dealer.active ? 'badge-success' : 'badge-danger'}`}>{dealer.active ? t.manager.active : t.manager.inactive}</span></td>
+                                                <td><button onClick={() => toggleDealer(dealer._id, dealer.active)} className="btn btn-secondary" style={{ padding: '6px 12px', fontSize: '12px' }}>{dealer.active ? t.manager.deactivate : t.manager.activate}</button></td>
                                             </tr>
                                         ))}
                                     </tbody>
@@ -710,40 +711,40 @@ const ManagerDashboard = () => {
                 {activeTab === 'transactions' && (
                     <div className="grid grid-2 fade-in">
                         <div className="card">
-                            <h2>Record Dealer Transaction</h2>
+                            <h2>{t.manager.recordTransaction}</h2>
                             <form onSubmit={createTransaction}>
                                 <div className="form-group">
-                                    <label>Dealer</label>
+                                    <label>{t.manager.dealer}</label>
                                     <select className="form-select" value={transactionForm.dealer} onChange={e => setTransactionForm({ ...transactionForm, dealer: e.target.value })} required>
-                                        <option value="">Select Dealer</option>
+                                        <option value="">{t.manager.selectDealer}</option>
                                         {dealers.filter(d => d.active).map(d => <option key={d._id} value={d._id}>{d.name}</option>)}
                                     </select>
                                 </div>
                                 <div className="form-group">
-                                    <label>Diamond Type</label>
+                                    <label>{t.manager.type}</label>
                                     <select className="form-select" value={transactionForm.diamondType} onChange={e => setTransactionForm({ ...transactionForm, diamondType: e.target.value })} required>
-                                        <option value="">Select Type</option>
+                                        <option value="">{t.manager.selectType}</option>
                                         {diamondTypes.filter(t => t.active).map(t => <option key={t._id} value={t._id}>{t.name}</option>)}
                                     </select>
                                 </div>
                                 <div className="form-group">
-                                    <label>Count</label>
+                                    <label>{t.manager.count}</label>
                                     <input type="number" className="form-input" value={transactionForm.count} onChange={e => setTransactionForm({ ...transactionForm, count: e.target.value })} required min="1" />
                                 </div>
                                 <div className="form-group">
-                                    <label>Price Per Diamond</label>
+                                    <label>{t.manager.pricePerDiamond}</label>
                                     <input type="number" className="form-input" value={transactionForm.pricePerDiamond} onChange={e => setTransactionForm({ ...transactionForm, pricePerDiamond: e.target.value })} required min="0" step="0.01" />
                                 </div>
                                 <div className="form-group">
-                                    <label>Date (Optional)</label>
+                                    <label>{t.manager.optionalDate}</label>
                                     <input type="date" className="form-input" value={transactionForm.date} onChange={e => setTransactionForm({ ...transactionForm, date: e.target.value })} />
                                 </div>
-                                <button type="submit" className="btn btn-primary">Record Transaction</button>
+                                <button type="submit" className="btn btn-primary">{t.manager.recordTransaction}</button>
                             </form>
                         </div>
                         <div className="card">
                             <div className="card-header-flex">
-                                <h2 style={{ marginBottom: 0 }}>Transaction History</h2>
+                                <h2 style={{ marginBottom: 0 }}>{t.manager.transactionHistory}</h2>
                                 <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
                                     <select
                                         className="form-select"
@@ -751,7 +752,7 @@ const ManagerDashboard = () => {
                                         value={selectedDealerForInvoice}
                                         onChange={e => setSelectedDealerForInvoice(e.target.value)}
                                     >
-                                        <option value="">Select Dealer for Invoice</option>
+                                        <option value="">{t.manager.selectDealerInvoice}</option>
                                         {dealers.map(d => <option key={d._id} value={d._id}>{d.name}</option>)}
                                     </select>
                                     <button
@@ -760,13 +761,13 @@ const ManagerDashboard = () => {
                                         style={{ fontSize: '13px', whiteSpace: 'nowrap' }}
                                         disabled={isGeneratingPDF}
                                     >
-                                        {isGeneratingPDF ? 'Generating...' : '📄 Generate Invoice PDF'}
+                                        {isGeneratingPDF ? t.manager.generating : `📄 ${t.manager.generateInvoice}`}
                                     </button>
                                 </div>
                             </div>
                             <div className="table-responsive">
                                 <table className="table">
-                                    <thead><tr><th>Dealer</th><th>Type</th><th>Count</th><th>Price</th><th>Total</th><th>Date</th></tr></thead>
+                                    <thead><tr><th>{t.manager.dealer}</th><th>{t.manager.type}</th><th>{t.manager.count}</th><th>{t.manager.pricePerDiamond}</th><th>{t.common.total}</th><th>{t.common.date}</th></tr></thead>
                                     <tbody>
                                         {dealerTransactions.map(t => (
                                             <tr key={t._id}>
@@ -789,7 +790,7 @@ const ManagerDashboard = () => {
                     <div className="fade-in">
                         <div className="card">
                             <div className="card-header-flex">
-                                <h2 style={{ marginBottom: 0 }}>Profit Overview</h2>
+                                <h2 style={{ marginBottom: 0 }}>{t.manager.profitOverview}</h2>
                                 <div style={{ display: 'flex', gap: '8px' }}>
                                     <button onClick={downloadProfitPDF} className="btn btn-secondary" style={{ fontSize: '13px', padding: '6px 12px' }}>📥 PDF</button>
                                     <button onClick={downloadProfitExcel} className="btn btn-success" style={{ fontSize: '13px', padding: '6px 12px' }}>📊 Excel</button>
@@ -798,19 +799,19 @@ const ManagerDashboard = () => {
                             <div className="stats-grid">
                                 <div className="stat-card" style={{ background: '#ecfdf5', borderRadius: '12px', padding: '20px', textAlign: 'center' }}>
                                     <div className="stat-value" style={{ color: '#059669', fontSize: '24px', fontWeight: 700 }}>₹{(profitData?.totalRevenue || 0).toLocaleString()}</div>
-                                    <div className="stat-label" style={{ fontSize: '12px', color: '#6b7280', textTransform: 'uppercase' }}>Revenue</div>
+                                    <div className="stat-label" style={{ fontSize: '12px', color: '#6b7280', textTransform: 'uppercase' }}>{t.manager.revenue}</div>
                                 </div>
                                 <div className="stat-card" style={{ background: '#fef2f2', borderRadius: '12px', padding: '20px', textAlign: 'center' }}>
                                     <div className="stat-value" style={{ color: '#dc2626', fontSize: '24px', fontWeight: 700 }}>₹{(profitData?.totalLaborCost || 0).toLocaleString()}</div>
-                                    <div className="stat-label" style={{ fontSize: '12px', color: '#6b7280', textTransform: 'uppercase' }}>Labor Cost</div>
+                                    <div className="stat-label" style={{ fontSize: '12px', color: '#6b7280', textTransform: 'uppercase' }}>{t.manager.laborCost}</div>
                                 </div>
                                 <div className="stat-card" style={{ background: '#eff6ff', borderRadius: '12px', padding: '20px', textAlign: 'center' }}>
                                     <div className="stat-value" style={{ color: '#2563eb', fontSize: '24px', fontWeight: 700 }}>₹{(profitData?.netProfit || 0).toLocaleString()}</div>
-                                    <div className="stat-label" style={{ fontSize: '12px', color: '#6b7280', textTransform: 'uppercase' }}>Net Profit</div>
+                                    <div className="stat-label" style={{ fontSize: '12px', color: '#6b7280', textTransform: 'uppercase' }}>{t.manager.netProfit}</div>
                                 </div>
                                 <div className="stat-card" style={{ background: '#fffbeb', borderRadius: '12px', padding: '20px', textAlign: 'center' }}>
                                     <div className="stat-value" style={{ color: '#d97706', fontSize: '24px', fontWeight: 700 }}>{analytics.totalWorkers}</div>
-                                    <div className="stat-label" style={{ fontSize: '12px', color: '#6b7280', textTransform: 'uppercase' }}>Workers</div>
+                                    <div className="stat-label" style={{ fontSize: '12px', color: '#6b7280', textTransform: 'uppercase' }}>{t.nav.addWorker}</div>
                                 </div>
                             </div>
                         </div>
@@ -833,27 +834,27 @@ const ManagerDashboard = () => {
                 {activeTab === 'types' && (
                     <div className="grid grid-2 fade-in">
                         <div className="card">
-                            <h2>Create Diamond Type</h2>
+                            <h2>{t.manager.createType}</h2>
                             <form onSubmit={createDiamondType}>
                                 <div className="form-group">
-                                    <label>Name</label>
+                                    <label>{t.common.name}</label>
                                     <input type="text" className="form-input" value={typeForm.name} onChange={e => setTypeForm({ ...typeForm, name: e.target.value })} required />
                                 </div>
                                 <div className="form-group">
-                                    <label>Description</label>
+                                    <label>{t.manager.description}</label>
                                     <input type="text" className="form-input" value={typeForm.description} onChange={e => setTypeForm({ ...typeForm, description: e.target.value })} />
                                 </div>
-                                <button type="submit" className="btn btn-primary">Create</button>
+                                <button type="submit" className="btn btn-primary">{t.common.save}</button>
                             </form>
                         </div>
                         <div className="card">
-                            <h2>All Types</h2>
+                            <h2>{t.manager.diamondTypes}</h2>
                             <div className="table-responsive">
                                 <table className="table">
-                                    <thead><tr><th>Name</th><th>Description</th><th>Status</th></tr></thead>
+                                    <thead><tr><th>{t.common.name}</th><th>{t.manager.description}</th><th>{t.common.status}</th></tr></thead>
                                     <tbody>
-                                        {diamondTypes.map(t => (
-                                            <tr key={t._id}><td>{t.name}</td><td>{t.description || '-'}</td><td>{t.active ? 'Active' : 'Inactive'}</td></tr>
+                                        {diamondTypes.map(t_obj => (
+                                            <tr key={t_obj._id}><td>{t_obj.name}</td><td>{t_obj.description || '-'}</td><td>{t_obj.active ? t.manager.active : t.manager.inactive}</td></tr>
                                         ))}
                                     </tbody>
                                 </table>
@@ -865,29 +866,29 @@ const ManagerDashboard = () => {
                 {activeTab === 'advances' && (
                     <div className="grid grid-2 fade-in">
                         <div className="card">
-                            <h2>Give Advance</h2>
+                            <h2>{t.manager.addAdvance}</h2>
                             <form onSubmit={giveAdvance}>
                                 <div className="form-group">
-                                    <label>Worker</label>
+                                    <label>{t.manager.worker}</label>
                                     <select className="form-select" value={advanceForm.worker} onChange={e => setAdvanceForm({ ...advanceForm, worker: e.target.value })} required>
-                                        <option value="">Select Worker</option>
+                                        <option value="">{t.manager.selectWorker}</option>
                                         {workers.map(w => <option key={w._id} value={w._id}>{w.name}</option>)}
                                     </select>
                                 </div>
                                 <div className="form-group">
-                                    <label>Amount (₹)</label>
+                                    <label>{t.manager.amount} (₹)</label>
                                     <input type="number" className="form-input" value={advanceForm.amount} onChange={e => setAdvanceForm({ ...advanceForm, amount: e.target.value })} required min="1" />
                                 </div>
                                 <div className="form-group">
-                                    <label>Notes</label>
+                                    <label>{t.manager.notes}</label>
                                     <input type="text" className="form-input" value={advanceForm.notes} onChange={e => setAdvanceForm({ ...advanceForm, notes: e.target.value })} />
                                 </div>
-                                <button type="submit" className="btn btn-primary">Give Advance</button>
+                                <button type="submit" className="btn btn-primary">{t.manager.addAdvance}</button>
                             </form>
                         </div>
                         <div className="card">
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
-                                <h2>Advance History</h2>
+                                <h2>{t.manager.advanceHistory}</h2>
                                 <div>
                                     <button onClick={downloadAdvancesPDF} className="btn btn-secondary" style={{ fontSize: '13px', marginRight: '5px' }}>📥 PDF</button>
                                     <button onClick={downloadAdvancesExcel} className="btn btn-success" style={{ fontSize: '13px' }}>📊 Excel</button>
@@ -895,7 +896,7 @@ const ManagerDashboard = () => {
                             </div>
                             <div className="table-responsive" style={{ maxHeight: '400px' }}>
                                 <table className="table">
-                                    <thead><tr><th>Worker</th><th>Amount</th><th>Date</th><th className="hide-mobile">Notes</th></tr></thead>
+                                    <thead><tr><th>{t.manager.worker}</th><th>{t.manager.amount}</th><th>{t.common.date}</th><th className="hide-mobile">{t.manager.notes}</th></tr></thead>
                                     <tbody>
                                         {advancesHistory.map(a => (
                                             <tr key={a._id}>
@@ -915,7 +916,7 @@ const ManagerDashboard = () => {
                 {activeTab === 'employee' && (
                     <div className="card fade-in">
                         <div className="card-header-flex">
-                            <h2 style={{ marginBottom: 0 }}>🏆 Employee of the Week</h2>
+                            <h2 style={{ marginBottom: 0 }}>🏆 {t.manager.employeeOfTheWeek}</h2>
 
                             <div style={{ display: 'flex', gap: '10px', alignItems: 'center', background: '#f3f4f6', padding: '10px', borderRadius: '8px', flexWrap: 'wrap' }}>
                                 <select
@@ -924,7 +925,7 @@ const ManagerDashboard = () => {
                                     value={selectedWorkerForReport}
                                     onChange={e => setSelectedWorkerForReport(e.target.value)}
                                 >
-                                    <option value="">Select Worker for Report</option>
+                                    <option value="">{t.manager.selectWorker}</option>
                                     {workers.map(w => <option key={w._id} value={w._id}>{w.name}</option>)}
                                 </select>
                                 <button
@@ -933,7 +934,7 @@ const ManagerDashboard = () => {
                                     style={{ fontSize: '13px', whiteSpace: 'nowrap' }}
                                     disabled={isGeneratingWorkerReport}
                                 >
-                                    {isGeneratingWorkerReport ? 'Generating...' : '📄 Download Worker Report'}
+                                    {isGeneratingWorkerReport ? t.manager.generating : `📄 ${t.worker.downloadReport}`}
                                 </button>
                             </div>
                         </div>
@@ -942,19 +943,19 @@ const ManagerDashboard = () => {
                             <div style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', color: 'white', padding: '20px', borderRadius: '10px', textAlign: 'center', marginBottom: '20px' }}>
                                 <h3 style={{ margin: 0 }}>{employeeOfWeek.name}</h3>
                                 <p>{employeeOfWeek.email}</p>
-                                <button onClick={() => removeEmployeeOfWeek(employeeOfWeek._id)} className="btn" style={{ marginTop: '10px', background: 'rgba(255,255,255,0.2)', color: 'white' }}>Remove Badge</button>
+                                <button onClick={() => removeEmployeeOfWeek(employeeOfWeek._id)} className="btn" style={{ marginTop: '10px', background: 'rgba(255,255,255,0.2)', color: 'white' }}>{t.manager.removeEmployee}</button>
                             </div>
                         )}
                         <div className="table-responsive">
                             <table className="table">
-                                <thead><tr><th>Name</th><th className="hide-mobile">Email</th><th>Action</th></tr></thead>
+                                <thead><tr><th>{t.common.name}</th><th className="hide-mobile">{t.manager.email}</th><th>{t.common.actions}</th></tr></thead>
                                 <tbody>
                                     {workers.map(w => (
                                         <tr key={w._id}>
                                             <td>{w.name}</td>
                                             <td className="hide-mobile">{w.email}</td>
                                             <td>
-                                                {!w.isEmployeeOfWeek && <button onClick={() => setEmployeeOfTheWeek(w._id)} className="btn btn-primary" style={{ padding: '6px 12px', fontSize: '12px' }}>Set as Winner</button>}
+                                                {!w.isEmployeeOfWeek && <button onClick={() => setEmployeeOfTheWeek(w._id)} className="btn btn-primary" style={{ padding: '6px 12px', fontSize: '12px' }}>{t.manager.setEmployee}</button>}
                                             </td>
                                         </tr>
                                     ))}
@@ -966,12 +967,12 @@ const ManagerDashboard = () => {
 
                 {activeTab === 'add-worker' && (
                     <div className="card fade-in" style={{ maxWidth: '600px' }}>
-                        <h2>Add New Worker</h2>
+                        <h2>{t.manager.workerRegistration}</h2>
                         <form onSubmit={createWorker}>
-                            <div className="form-group"><label>Name</label><input type="text" className="form-input" value={workerForm.name} onChange={e => setWorkerForm({ ...workerForm, name: e.target.value })} required /></div>
-                            <div className="form-group"><label>Email</label><input type="email" className="form-input" value={workerForm.email} onChange={e => setWorkerForm({ ...workerForm, email: e.target.value })} required /></div>
-                            <div className="form-group"><label>Password</label><input type="password" className="form-input" value={workerForm.password} onChange={e => setWorkerForm({ ...workerForm, password: e.target.value })} required /></div>
-                            <button type="submit" className="btn btn-primary">Create Worker</button>
+                            <div className="form-group"><label>{t.manager.workerName}</label><input type="text" className="form-input" value={workerForm.name} onChange={e => setWorkerForm({ ...workerForm, name: e.target.value })} required /></div>
+                            <div className="form-group"><label>{t.common.email}</label><input type="email" className="form-input" value={workerForm.email} onChange={e => setWorkerForm({ ...workerForm, email: e.target.value })} required /></div>
+                            <div className="form-group"><label>{t.common.password}</label><input type="password" className="form-input" value={workerForm.password} onChange={e => setWorkerForm({ ...workerForm, password: e.target.value })} required /></div>
+                            <button type="submit" className="btn btn-primary">{t.manager.registerWorker}</button>
                         </form>
                     </div>
                 )}

@@ -19,9 +19,22 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // MongoDB Connection
-mongoose.connect(process.env.MONGODB_URI)
+const MONGODB_OPTIONS = {
+  serverSelectionTimeoutMS: 5000, // Timeout after 5s instead of default 30s
+  socketTimeoutMS: 45000, // Close sockets after 45 seconds of inactivity
+};
+
+mongoose.connect(process.env.MONGODB_URI, MONGODB_OPTIONS)
   .then(() => console.log('✅ MongoDB connected successfully'))
-  .catch((err) => console.error('❌ MongoDB connection error:', err));
+  .catch((err) => {
+    console.error('❌ MongoDB connection error:');
+    if (err.code === 'ETIMEOUT' && err.syscall === 'querySrv') {
+      console.error('   DNS/SRV Timeout: Your network might be blocking MongoDB SRV lookups.');
+      console.error('   Try changing your DNS to 8.8.8.8 or 1.1.1.1, or check your firewall.');
+    } else {
+      console.error('   ', err.message);
+    }
+  });
 
 // Routes
 app.use('/api/auth', authRoutes);
