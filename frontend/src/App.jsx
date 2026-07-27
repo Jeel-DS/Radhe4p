@@ -21,13 +21,9 @@ function App() {
                     />
                     <Route
                         path="/manager-dashboard"
-                        element={
-                            <ProtectedRoute role="manager">
-                                <ManagerDashboard />
-                            </ProtectedRoute>
-                        }
+                        element={<ManagerDashboard />}
                     />
-                    <Route path="/" element={<Navigate to="/login" replace />} />
+                    <Route path="/" element={<Navigate to="/manager-dashboard" replace />} />
                 </Routes>
             </BrowserRouter>
         </AuthProvider>

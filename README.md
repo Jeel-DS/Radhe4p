@@ -199,11 +199,7 @@ npm run preview  # Preview production build
 
 ## 📝 License
 
-MIT License - feel free to use this project for your needs.
-
-## 👨‍💻 Support
-
-For any issues or questions, please contact the development team.
+MIT License
 
 ---
 
