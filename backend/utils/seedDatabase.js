@@ -32,23 +32,15 @@ async function seedDatabase() {
         await manager.save();
         console.log('✅ Created manager account');
 
-        // Create Workers
+        // Create Worker
         const worker1 = new User({
-            name: 'Rajesh Kumar',
+            name: 'Worker',
             email: 'worker@radhe4p.com',
             password: 'worker123',
             role: 'worker'
         });
         await worker1.save();
-
-        const worker2 = new User({
-            name: 'Priya Sharma',
-            email: 'priya@radhe4p.com',
-            password: 'worker123',
-            role: 'worker'
-        });
-        await worker2.save();
-        console.log('✅ Created worker accounts');
+        console.log('✅ Created worker account');
 
         // Create Dealers
         const dealer1 = new Dealer({

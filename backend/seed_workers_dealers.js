@@ -8,16 +8,7 @@ const DiamondType = require('./models/DiamondType');
 
 // Worker Data
 const workers = [
-    { name: 'Bharat', email: 'Bharat@radhe4p', password: 'Bharat10' },
-    { name: 'Kaushik', email: 'Kaushik@radhe4p', password: 'Kaushik20' },
-    { name: 'Rajdeep', email: 'Rajdeep@radhe4p', password: 'Rajdeep30' },
-    { name: 'Vishal', email: 'Vishal@radhe4p', password: 'Vishal40' },
-    { name: 'Rahul', email: 'Rahul@radhe4p', password: 'Rahul50' },
-    { name: 'Kamlesh', email: 'Kamlesh@radhe4p', password: 'Kamlesh60' },
-    { name: 'Dhima', email: 'Dhima@radhe4p', password: 'Dhima70' },
-    { name: 'Sadhana', email: 'Sadhana@radhe4p', password: 'Sadhana80' },
-    { name: 'Vishnu', email: 'Vishnu@radhe4p', password: 'Vishnu90' },
-    { name: 'Sarad', email: 'Sarad@radhe4p', password: 'Sarad100' }
+    { name: 'Worker', email: 'worker@radhe4p.com', password: 'worker123' }
 ];
 
 // Dealer Data

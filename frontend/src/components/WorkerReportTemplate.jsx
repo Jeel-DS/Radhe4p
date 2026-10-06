@@ -42,7 +42,7 @@ const WorkerReportTemplate = forwardRef(({ reportData }, ref) => {
                     <p style={{ margin: '2px 0', color: '#6b7280', fontSize: '14px' }}>3rd FLOOR, ROOM NO. 11,</p>
                     <p style={{ margin: '2px 0', color: '#6b7280', fontSize: '14px' }}>PLOT NO.11, BAJARANG APP., MATA VADI,</p>
                     <p style={{ margin: '2px 0', color: '#6b7280', fontSize: '14px' }}>VARACHHA, SURAT, GUJARAT-395006</p>
-                    <p style={{ margin: '2px 0', color: '#6b7280', fontSize: '14px' }}>ફોન: +91 9979265814</p>
+                    <p style={{ margin: '2px 0', color: '#6b7280', fontSize: '14px' }}>Phone: +91 9979265814</p>
                 </div>
                 <div style={{ textAlign: 'right' }}>
                     <h2 style={{ margin: '0 0 10px 0', color: '#4f46e5', fontSize: '24px', textTransform: 'uppercase', letterSpacing: '1px' }}>{t.report.title}</h2>
@@ -74,7 +74,7 @@ const WorkerReportTemplate = forwardRef(({ reportData }, ref) => {
             }}>
                 <thead>
                     <tr>
-                        <th style={{ backgroundColor: '#4f46e5', color: 'white', padding: '10px', textAlign: 'left', fontWeight: '600' }}>ક્રમ</th>
+                        <th style={{ backgroundColor: '#4f46e5', color: 'white', padding: '10px', textAlign: 'left', fontWeight: '600' }}>Sr. No.</th>
                         <th style={{ backgroundColor: '#4f46e5', color: 'white', padding: '10px', textAlign: 'left', fontWeight: '600' }}>{t.common.date}</th>
                         <th style={{ backgroundColor: '#4f46e5', color: 'white', padding: '10px', textAlign: 'left', fontWeight: '600' }}>{t.report.totalDiamonds}</th>
                         <th style={{ backgroundColor: '#4f46e5', color: 'white', padding: '10px', textAlign: 'left', fontWeight: '600' }}>{t.worker.pricePerDiamond}</th>
@@ -114,7 +114,7 @@ const WorkerReportTemplate = forwardRef(({ reportData }, ref) => {
             }}>
                 <thead>
                     <tr>
-                        <th style={{ backgroundColor: '#4f46e5', color: 'white', padding: '10px', textAlign: 'left', fontWeight: '600' }}>ક્રમ</th>
+                        <th style={{ backgroundColor: '#4f46e5', color: 'white', padding: '10px', textAlign: 'left', fontWeight: '600' }}>Sr. No.</th>
                         <th style={{ backgroundColor: '#4f46e5', color: 'white', padding: '10px', textAlign: 'left', fontWeight: '600' }}>{t.common.date}</th>
                         <th style={{ backgroundColor: '#4f46e5', color: 'white', padding: '10px', textAlign: 'left', fontWeight: '600' }}>{t.manager.remark}</th>
                         <th style={{ backgroundColor: '#4f46e5', color: 'white', padding: '10px', textAlign: 'right', fontWeight: '600' }}>{t.manager.amount}</th>
@@ -188,7 +188,7 @@ const WorkerReportTemplate = forwardRef(({ reportData }, ref) => {
             }}>
                 <div style={{ textAlign: 'center', width: '200px' }}>
                     <div style={{ borderBottom: '1px solid #111827', marginBottom: '10px', height: '40px' }}></div>
-                    <strong>કારીગરની સહી</strong>
+                    <strong>Worker Signature</strong>
                 </div>
                 <div style={{ textAlign: 'center', width: '200px' }}>
                     <div style={{
@@ -200,13 +200,13 @@ const WorkerReportTemplate = forwardRef(({ reportData }, ref) => {
                         justifyContent: 'center',
                         color: '#9ca3af'
                     }}>
-                        (સિક્કો અહીં)
+                        (Stamp Here)
                     </div>
-                    <strong>કંપનીનો સિક્કો</strong>
+                    <strong>Company Stamp</strong>
                 </div>
                 <div style={{ textAlign: 'center', width: '200px' }}>
                     <div style={{ borderBottom: '1px solid #111827', marginBottom: '10px', height: '40px' }}></div>
-                    <strong>મેનેજરની સહી</strong>
+                    <strong>Manager Signature</strong>
                 </div>
             </div>
         </div>

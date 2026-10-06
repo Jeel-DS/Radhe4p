@@ -117,10 +117,6 @@ After seeding the database, use these credentials:
 - Email: `worker@radhe4p.com`
 - Password: `worker123`
 
-**Additional Worker:**
-- Email: `priya@radhe4p.com`
-- Password: `worker123`
-
 ## 📖 API Documentation
 
 ### Authentication Endpoints

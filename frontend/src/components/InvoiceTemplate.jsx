@@ -37,7 +37,7 @@ const InvoiceTemplate = forwardRef(({ invoiceData }, ref) => {
                     <p style={{ margin: '2px 0', color: '#6b7280', fontSize: '14px' }}>3rd FLOOR, ROOM NO. 11,</p>
                     <p style={{ margin: '2px 0', color: '#6b7280', fontSize: '14px' }}>PLOT NO.11, BAJARANG APP., MATA VADI,</p>
                     <p style={{ margin: '2px 0', color: '#6b7280', fontSize: '14px' }}>VARACHHA, SURAT, GUJARAT-395006</p>
-                    <p style={{ margin: '2px 0', color: '#6b7280', fontSize: '14px' }}>ફોન: +91 9979265814</p>
+                    <p style={{ margin: '2px 0', color: '#6b7280', fontSize: '14px' }}>Phone: +91 9979265814</p>
                 </div>
             </div>
 
@@ -59,9 +59,9 @@ const InvoiceTemplate = forwardRef(({ invoiceData }, ref) => {
             }}>
                 <thead>
                     <tr>
-                        <th style={{ backgroundColor: '#4f46e5', color: 'white', padding: '12px', textAlign: 'left', fontWeight: '600' }}>ક્રમ</th>
+                        <th style={{ backgroundColor: '#4f46e5', color: 'white', padding: '12px', textAlign: 'left', fontWeight: '600' }}>Sr. No.</th>
                         <th style={{ backgroundColor: '#4f46e5', color: 'white', padding: '12px', textAlign: 'left', fontWeight: '600' }}>{t.common.date}</th>
-                        <th style={{ backgroundColor: '#4f46e5', color: 'white', padding: '12px', textAlign: 'left', fontWeight: '600' }}>હીરા મળ્યા</th>
+                        <th style={{ backgroundColor: '#4f46e5', color: 'white', padding: '12px', textAlign: 'left', fontWeight: '600' }}>Diamonds Received</th>
                         <th style={{ backgroundColor: '#4f46e5', color: 'white', padding: '12px', textAlign: 'right', fontWeight: '600' }}>{t.manager.pricePerDiamond}</th>
                         <th style={{ backgroundColor: '#4f46e5', color: 'white', padding: '12px', textAlign: 'right', fontWeight: '600' }}>{t.common.amount}</th>
                     </tr>
@@ -117,7 +117,7 @@ const InvoiceTemplate = forwardRef(({ invoiceData }, ref) => {
                 paddingTop: '20px',
                 marginTop: '40px'
             }}>
-                <p>અમારી સાથે વ્યવહાર કરવા બદલ આભાર! કોઈપણ પૂછપરછ માટે, કૃપા કરીને +91 9979265814 નો સંપર્ક કરો.</p>
+                <p>Thank you for doing business with us! For any inquiries, please contact +91 9979265814.</p>
             </div>
         </div>
     );
